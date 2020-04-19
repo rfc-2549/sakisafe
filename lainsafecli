@@ -1,0 +1,108 @@
+#!/usr/bin/perl
+# Lainsafe cli
+
+# This file is part of lainsafe.
+
+# lainsafe is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+
+# lainsafe is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+
+# You should have received a copy of the GNU General Public License
+# along with lainsafe.  If not, see <https://www.gnu.org/licenses/>.
+    
+
+
+use Getopt::Long;
+use LWP::UserAgent;
+use Data::Dumper;
+use Try::Tiny;
+
+use strict;
+use warnings;
+# variables
+my $help;
+my $DEFAULT_SERVER;
+my $file;
+my $DISPLAY_ASCII;
+
+# Default options, if no specified.
+$DEFAULT_SERVER = "https://qorg11.net/test";
+$DISPLAY_ASCII = 1; # 0 if you don't want the ascii
+
+my $ASCII_ART = <<'EOF';
+
+                
+           _..-- ----- --.._
+        ,-''                `-.
+       ,                       \
+      /                         \
+     /        ` .                \
+    '         /  ||               ;
+    ;      ^/|   |/        |      |
+    |      /v    /\`-'v√\'-|\     ,
+    |   /v` ,---      ---- .^.|    ;
+    :  |   /´@@`,     ,@@`\  |    ;
+    '  |  '. @@ /     \@@ /  |\  |;
+    | ^|    -----      ---   | \/||
+    ` |`                     | /\ /
+    \    \                   |/ |,
+    ' ;   \                 /|  |
+      `    \      --       / |  |
+      `     `.          .-'  |  /
+       v,-    `;._   _.;     | |
+          `'`\ |-_      -^'^'| |
+                  ------     |/
+          
+EOF
+
+# Subs
+
+sub help
+{
+    print "lainsafecli, a command line interface for lainsafe.\n";
+    print "USAGE: lainsafecli [--server] --file=FILE\n\n";
+    print "if --server not given, $DEFAULT_SERVER is used.\n";
+
+    exit;
+}
+
+## PROGRAM
+my $ua = LWP::UserAgent->new;
+GetOptions ("server=s" => \$DEFAULT_SERVER,
+	    "file=s" => \$file,
+            "help" => \$help);
+
+&help if ($help);
+
+# check if file is given
+
+die "Give a file\n" unless defined $file;
+
+my $url_to_upload = $DEFAULT_SERVER . "/upload.cgi";
+my $req;
+# check if server is running lainsafe
+
+if(!$ua->get($url_to_upload)->is_success)
+{
+    print "$url_to_upload is not running lainsafe.\n";
+    exit;
+}
+
+
+$req = $ua->post($url_to_upload,
+  Content_Type => 'form-data',
+  Content => [
+     "file" => [ $file ],
+  ],
+);
+
+
+print $ASCII_ART if $DISPLAY_ASCII;
+print $DEFAULT_SERVER . "/" . $req->{_content} . "\n";
+
