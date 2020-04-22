@@ -20,8 +20,6 @@
 
 use Getopt::Long;
 use LWP::UserAgent;
-use Data::Dumper;
-use Try::Tiny;
 
 use strict;
 use warnings;
@@ -66,7 +64,7 @@ EOF
 sub help
 {
     print "lainsafecli, a command line interface for lainsafe.\n";
-    print "USAGE: lainsafecli [--server] --file=FILE\n\n";
+    print "USAGE: lainsafecli [--server] FILE\n\n";
     print "if --server not given, $DEFAULT_SERVER is used.\n";
 
     exit;
@@ -75,14 +73,22 @@ sub help
 ## PROGRAM
 my $ua = LWP::UserAgent->new;
 GetOptions ("server=s" => \$DEFAULT_SERVER,
-	    "file=s" => \$file,
-            "help" => \$help);
+            "help|" => \$help);
 
-&help if ($help);
+if($help || not defined $ARGV[0])
+{
+    &help;
+}
 
 # check if file is given
 
+$file = $ARGV[@ARGV-1];
+
+die "File does not exist\n" if !-e $file;
+
 die "Give a file\n" unless defined $file;
+
+
 
 my $url_to_upload = $DEFAULT_SERVER . "/upload.cgi";
 my $req;

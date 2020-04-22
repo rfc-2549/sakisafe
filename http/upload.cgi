@@ -15,8 +15,6 @@
 # along with lainsafe.  If not, see <https://www.gnu.org/licenses/>.
 
 use CGI;
-use Digest::MD5 qw(md5_hex);
-
 
 my $q = CGI->new;
 print $q->header();
