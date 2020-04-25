@@ -15,22 +15,29 @@
 # along with lainsafe.  If not, see <https://www.gnu.org/licenses/>.
 
 use CGI;
-
+use CGI::Carp qw(fatalsToBrowser);
 my $q = CGI->new;
-print $q->header();
+
+my $filename = $q->param('file');
 # TODO: fix 502
 
 my $upload_dir = "files/";
-my $filename = $q->param("file");
+print $q->header();
+$size    = $ENV{CONTENT_LENGTH};
+$MAX_SIZE = 1024*1024*10; # Change for your size
+$MAX_SIZE_MB = $MAX_SIZE / 1024 / 1024; # Don't change this
 if($filename eq "") {
     print("What are you looking for?");
+    exit;
+}
+if($size > $MAX_SIZE)
+{
+    print("Max size for a file is $MAX_SIZE_MB MBs");
     exit;
 }
 
 my $extension = $filename;
 $extension =~ s/.*\.//;
-
-
 
 my @chars = ("A".."Z", "a".."z");
 my $string;
