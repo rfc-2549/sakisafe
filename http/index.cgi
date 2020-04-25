@@ -14,6 +14,11 @@
 # You should have received a copy of the GNU General Public License
 # along with lainsafe.  If not, see <https://www.gnu.org/licenses/>.
 
+$disk_size = `df -h | awk 'NR==2 {print \$2; exit}'`;
+$disk_usage = `df -h | awk 'NR==2 {print \$3; exit}')`;
+$disk_free = `df -h | awk 'NR==2 {print \$4; exit}'`;
+$disk_percentage = `df -h | awk 'NR==2 {print \$5; exit}'`;
+
 my $currently_used = `du -h files`;
 $currently_used =~ s/files//;
 my $total = "32GB"; # Put here what you use.
@@ -38,4 +43,4 @@ print "<!DOCTYPE html>
   </body>
     </html>";
 
-print "$currently_used available from $total";
+print $disk_free ." available from ". $disk_size ." total";
