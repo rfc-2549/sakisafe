@@ -14,10 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with lainsafe.  If not, see <https://www.gnu.org/licenses/>.
 
-$disk_size = `df -h | awk 'NR==2 {print \$2; exit}'`;
-$disk_usage = `df -h | awk 'NR==2 {print \$3; exit}')`;
-$disk_free = `df -h | awk 'NR==2 {print \$4; exit}'`;
-$disk_percentage = `df -h | awk 'NR==2 {print \$5; exit}'`;
+my  $disk_size = `df -h | awk 'NR==2 {print \$2; exit}'`;
+my $disk_usage = `df -h | awk 'NR==2 {print \$3; exit}')`;
+my $disk_free = `df -h | awk 'NR==2 {print \$4; exit}'`;
+my $disk_percentage = `df -h | awk 'NR==2 {print \$5; exit}'`;
 
 my $currently_used = `du -h files`;
 $currently_used =~ s/files//;
