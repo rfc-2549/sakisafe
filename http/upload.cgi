@@ -24,9 +24,13 @@ my $filename = $q->param('file');
 my $upload_dir = "files/";
 print $q->header();
 $size    = $ENV{CONTENT_LENGTH};
+# Configuration
+
 $MAX_SIZE = 1024*1024*10; # Change for your size
 $MAX_SIZE_MB = $MAX_SIZE / 1024 / 1024; # Don't change this
-if($filename eq "") {
+
+if($filename eq "")
+{
     print("What are you looking for?");
     exit;
 }
