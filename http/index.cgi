@@ -19,10 +19,6 @@ my $disk_usage = `df -h | awk 'NR==2 {print \$3; exit}')`;
 my $disk_free = `df -h | awk 'NR==2 {print \$4; exit}'`;
 my $disk_percentage = `df -h | awk 'NR==2 {print \$5; exit}'`;
 
-my $currently_used = `du -h files`;
-$currently_used =~ s/files//;
-my $total = "32GB"; # Put here what you use.
-
 print "<!DOCTYPE html>
 <html lang=\"en\">
   <head>
