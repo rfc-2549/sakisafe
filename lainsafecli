@@ -115,4 +115,3 @@ $req = $ua->post($url_to_upload,
 
 print $ASCII_ART if $DISPLAY_ASCII;
 print $DEFAULT_SERVER . "/" . $req->{_content} . "\n";
-

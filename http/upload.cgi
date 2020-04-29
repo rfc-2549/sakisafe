@@ -24,6 +24,7 @@ my $filename = $q->param('file');
 my $upload_dir = "files/";
 print $q->header();
 $size    = $ENV{CONTENT_LENGTH};
+
 # Configuration
 
 $MAX_SIZE = 1024*1024*10; # Change for your size
@@ -34,6 +35,7 @@ if($filename eq "")
     print("What are you looking for?");
     exit;
 }
+
 if($size > $MAX_SIZE)
 {
     print("Max size for a file is $MAX_SIZE_MB MBs");
@@ -41,7 +43,7 @@ if($size > $MAX_SIZE)
 }
 
 my $extension = $filename;
-$extension =~ s/.*\.//;
+$extension =~ s/.*\.//; # tar.gz sucks with this
 
 my @chars = ("A".."Z", "a".."z");
 my $string;
