@@ -1,6 +1,3 @@
-<style>
-code {color:white;}
-</style>
 # lainsafecli documentation
 
 ## History
@@ -118,7 +115,7 @@ https://lainsafe.delegao.moe/files/nzOhDKtB.pdf
 
 # upload.cgi
 
-``upload.cgi``` is the perl script that do all the works. You could
+```upload.cgi``` is the perl script that do all the works. You could
 delete index.cgi from your sever and just upload.cgi. You'd upload
 files through ```lainsafecli```.
 
@@ -128,5 +125,3 @@ Only one parameter: ```$MAX_SIZE``` specify, in megabytes, the max size of files
 
 If someone tries to upload a file bigger than 100MBs. It will return
 Max size for a file is 100 MBs, then, uploda.cgi will die.
-
-
