@@ -17,7 +17,7 @@ server
 
 	listen 80;
 	listen [::]:80;
-	client_max_body_size 100m; # max size 10MBs, change 10 to 100 in upload.cgi in line 30
+	client_max_body_size 100m; # max size 100MBs, change 10 to 100 in upload.cgi in line 30
 	root /var/www/lainsafe;
 
 	location ~ \.cgi$ {
