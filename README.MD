@@ -29,12 +29,12 @@ Lain ascii art to appear when you upload a file.
 
 ```--help``` Displays a simple help message and exits.
 
-```--file``` the file you want to upload
+```--file``` the file you want to upload (useless in newer versions)
 
 ### Example
 
 ~~~
-$ lainsafecli --server https://lainsafe.delegao.moe --file sicp.png
+$ lainsafecli --server https://lainsafe.delegao.moe sicp.png
 
 
                 
