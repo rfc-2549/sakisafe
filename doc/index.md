@@ -32,7 +32,13 @@ server
 
 ## lainsafecli
 
-lainsafecli is a command line interface for lainsafe. It can be used in whatever that runs Perl. Installation is simple: if you're running Debian install the libwww-perl package. If you are not running Debian, search for that package in your repositories. Or use ```# cpan -i LWP::UserAgent```
+lainsafecli is a command line interface for lainsafe. It can be used
+in whatever that runs Perl. Installation is simple: if you're running
+Debian install the libwww-perl package. If you are not running Debian,
+search for that package in your repositories. Or use ```# cpan -i
+LWP::UserAgent``` Also LWP::UserAgent::https is needed. In Debian,
+install liblwp-protocol-https-perl, in other distros try # cpan -i
+LWP::UserAgent
 
 ### Installation
 
