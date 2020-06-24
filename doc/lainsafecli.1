@@ -1,0 +1,59 @@
+.\" Manpage for lainsafecli.
+.TH man 1
+.SH NAME
+lainsafecli \- Command line interface for lainsafe
+.SH SYNOPSIS
+lainsafecli
+.I
+[--server=server]
+file
+
+.SH DESCRIPTION
+
+.I
+lainsafecli uploads a file to a given lainsafe server. This server may
+be specified with the
+.I --server
+flag. If
+.I --server
+is not given. The content of the variable
+.I $DEFAULT_SERVER
+will be used instead. This variable is in the script. In the official
+packages. this is https://lainsafe.delegao.moe
+
+.SH OPTIONS
+
+.I --server
+Sets the server to use. If it is not given $DEFAULT_SERVER will be used instead.
+.I --help
+Displays a simple help message and exits. This also specify which
+server will be used if no
+.I --server
+is given.
+
+.SH TROUBLESHOOTING
+
+"whatever" is not running lainsafe. But works in the browser.
+
+This only happens with https lainsafe instances. To solve that. Make
+sure that the module LWP::UserAgent::https is installed. You can
+install it using
+.I cpan(1)
+
+HTTP 413 is returned
+
+The file you specified is too big for the instance. Try using another
+instance. By default lainsafe supports up to 100MBs. But this can be configured in lainsafe
+.B AND
+the web server. If the file exceds whatever your
+.B server
+allows. lainsafe can set another limit. If the lainsafe limit is less
+than the server limit. lainsafe will return its own error message.
+
+.SH AUTHORS
+
+qorg11 <qorg@vxempire.xyz>
+
+.SH LICENSE
+
+GPLv3 or later.
