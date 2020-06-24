@@ -25,6 +25,7 @@ packages. this is https://lainsafe.delegao.moe
 
 .I --server
 Sets the server to use. If it is not given $DEFAULT_SERVER will be used instead.
+
 .I --help
 Displays a simple help message and exits. This also specify which
 server will be used if no
@@ -33,14 +34,15 @@ is given.
 
 .SH TROUBLESHOOTING
 
-"whatever" is not running lainsafe. But works in the browser.
+.B "whatever" is not running lainsafe. But works in the browser.
 
 This only happens with https lainsafe instances. To solve that. Make
-sure that the module LWP::UserAgent::https is installed. You can
-install it using
+sure that the module
+.I LWP::UserAgent::https
+is installed. You can install it using
 .I cpan(1)
 
-HTTP 413 is returned
+.B HTTP 413 is returned
 
 The file you specified is too big for the instance. Try using another
 instance. By default lainsafe supports up to 100MBs. But this can be configured in lainsafe
