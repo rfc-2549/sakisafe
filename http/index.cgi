@@ -36,6 +36,7 @@ print "<!DOCTYPE html>
       <input type='file' name='file' size='30'>
       <input type='submit' value='upload'>
     </form>
+    <a href='https://github.com/qorg11/lainsafe'>star me</a>
 
 
   </body>
