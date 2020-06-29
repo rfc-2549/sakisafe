@@ -86,10 +86,6 @@ $file = $ARGV[@ARGV-1];
 
 die "File does not exist\n" if !-e $file;
 
-die "Give a file\n" unless defined $file;
-
-
-
 my $url_to_upload = $DEFAULT_SERVER . "/upload.cgi";
 my $req;
 
