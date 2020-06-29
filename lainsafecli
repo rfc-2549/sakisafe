@@ -20,6 +20,7 @@
 
 use Getopt::Long;
 use LWP::UserAgent;
+
 use strict;
 use warnings;
 # variables
@@ -113,4 +114,9 @@ $req = $ua->post($url_to_upload,
 
 
 print $ASCII_ART if $DISPLAY_ASCII;
+if($req->{_content} =~ /instance/) # If someone knows how to do it another way, I'm all ears
+{
+  print $req->{_content} . "\n";
+  exit;	
+}
 print $DEFAULT_SERVER . "/" . $req->{_content} . "\n";

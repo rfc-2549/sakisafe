@@ -27,8 +27,9 @@ $size    = $ENV{CONTENT_LENGTH};
 
 # Configuration
 
-$MAX_SIZE = 1024*1024*10; # Change for your size
-$MAX_SIZE_MB = $MAX_SIZE / 1024 / 1024; # Don't change this
+our $MAX_SIZE = 1024*1024*10; # Change for your size
+our $MAX_SIZE_MB = $MAX_SIZE / 1024 / 1024; # Don't change this
+our @not_allowed_extensions = qw(sh out exe);
 
 if($filename eq "")
 {
@@ -45,15 +46,32 @@ if($size > $MAX_SIZE)
 my $extension = $filename;
 $extension =~ s/.*\.//; # tar.gz sucks with this
 
+# Generate random string
 my @chars = ("A".."Z", "a".."z");
 my $string;
 $string .= $chars[rand @chars] for 1..8;
+
 my $upload_filehandle = $q->upload("file");
 
 $filename = $string . "." . $extension;
+my $allowed_extension = 1;
 
+foreach(@not_allowed_extensions)
+  {
+    if($filename =~ /\.$_$/i)
+      {
+	$allowed_extension = 0;
+	last;
+      }
+
+  }
+
+if($allowed_extension)
+  {
+    
 open(FILE,">$upload_dir/$filename");
 binmode(FILE);
+
 while(<$upload_filehandle>)
 {
     print FILE;
@@ -62,3 +80,8 @@ while(<$upload_filehandle>)
 close FILE;
 
 print $ENV{HTTP_REFERER} . "$upload_dir$filename";
+}
+
+else {
+  print "The file extension .$extension is not allowed in this instance.";
+}
