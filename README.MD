@@ -23,7 +23,7 @@ If you want updates for your package, you have to add
 `repo.qorg11.net` to your sources.list:
 
 ~~~
-echo "deb deb http://repo.qorg11.net/debian stable main" >> /etc/apt/sources.list
+echo "deb http://repo.qorg11.net/debian stable main" >> /etc/apt/sources.list
 wget http://repo.qorg11.net/repo.key -q -O - | sudo apt-key add
 sudo apt updates
 sudo apt install lainsafecli
