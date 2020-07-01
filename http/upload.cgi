@@ -57,31 +57,32 @@ $filename = $string . "." . $extension;
 my $allowed_extension = 1;
 
 foreach(@not_allowed_extensions)
-  {
+{
     if($filename =~ /\.$_$/i)
-      {
-	$allowed_extension = 0;
-	last;
-      }
+    {
+        $allowed_extension = 0;
+        last;
+    }
 
-  }
+}
 
 if($allowed_extension)
-  {
-    
-open(FILE,">$upload_dir/$filename");
-binmode(FILE);
-
-while(<$upload_filehandle>)
 {
-    print FILE;
+
+    open(FILE,">$upload_dir/$filename");
+    binmode(FILE);
+
+    while(<$upload_filehandle>)
+    {
+        print FILE;
+    }
+
+    close FILE;
+
+    print $ENV{HTTP_REFERER} . "$upload_dir$filename";
 }
 
-close FILE;
-
-print $ENV{HTTP_REFERER} . "$upload_dir$filename";
-}
-
-else {
-  print "The file extension .$extension is not allowed in this instance.";
+else
+{
+    print "The file extension .$extension is not allowed in this instance.";
 }
