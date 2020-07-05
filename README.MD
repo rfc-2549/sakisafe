@@ -81,3 +81,11 @@ $ lainsafecli --server https://lainsafe.delegao.moe sicp.png
 https://lainsafe.delegao.moe/files/EWwEnBHk.png
 
 ~~~
+
+# Donate
+
+Thanks!
+
+[Liberapay](https://liberapay.com/qorg11)
+
+Bitcoin: bc1q22lkmm6p0k4acpmlwpy3gyw8m9edv9y3legazw
