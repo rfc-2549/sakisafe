@@ -29,7 +29,7 @@ sudo apt updates
 sudo apt install lainsafecli
 ~~~
 #### Arch
-TODO
+[AUR - `lainsafecli`](https://aur.archlinux.org/packages/lainsafecli/)
 
 ### lainsafecli configuration
 
