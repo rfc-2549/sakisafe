@@ -88,4 +88,4 @@ Thanks!
 
 [Liberapay](https://liberapay.com/qorg11)
 
-Bitcoin: bc1q22lkmm6p0k4acpmlwpy3gyw8m9edv9y3legazw
+Bitcoin: bc1qghl6f27dpgktynpvkrxte2s3gm9pcv8vlwuzum
