@@ -74,16 +74,14 @@ my $ua = LWP::UserAgent->new;
 GetOptions ("server=s" => \$DEFAULT_SERVER,
             "help|" => \$help);
 
-if($help || not defined $ARGV[0])
-{
-    &help;
-}
+&help if $help || not defined $ARGV[0];
+
 
 # check if file is given
 
 $file = $ARGV[@ARGV-1];
 
-die "File does not exist\n" if !-e $file;
+die "File does not exist\n" unless -e $file;
 
 my $url_to_upload = $DEFAULT_SERVER . "/upload.cgi";
 my $req;
