@@ -34,7 +34,7 @@ my $LINKS_FILE;
 $DEFAULT_SERVER = "https://lainsafe.delegao.moe";
 $DISPLAY_ASCII = 1; # 0 if you don't want the ascii
 $STORE_LINKS = 1; # 0 if you don't want to keep track of your upload
-$LINKS_FILE = "$ENV{HOME}/.lainsafelinks";
+$LINKS_FILE = "$ENV{HOME}/.cache/lainsafelinks";
 
 my $ASCII_ART = <<'EOF';
            _..-- ----- --.._
