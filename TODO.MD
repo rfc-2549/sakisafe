@@ -1,2 +1,2 @@
-* set $MAX_SIZE variable in upload.cgi
-* echo links in .cache/lainsafelinks in lainsafecli
+[x] set $MAX_SIZE variable in upload.cgi
+[x] echo links in .cache/lainsafelinks in lainsafecli

@@ -29,11 +29,13 @@ my $DEFAULT_SERVER;
 my $file;
 my $DISPLAY_ASCII;
 my $STORE_LINKS;
+my $LINKS_FILE;
 # Default options, if no specified.
 $DEFAULT_SERVER = "https://lainsafe.delegao.moe";
 $DISPLAY_ASCII = 1; # 0 if you don't want the ascii
 $STORE_LINKS = 1; # 0 if you don't want to keep track of your upload
-  
+$LINKS_FILE = "$ENV{HOME}/.lainsafelinks";
+
 my $ASCII_ART = <<'EOF';
            _..-- ----- --.._
         ,-''                `-.
@@ -116,7 +118,7 @@ print $DEFAULT_SERVER . "/" . $req->{_content} . "\n";
 
 if($STORE_LINKS)
   {
-    open FILE,'>>',"$ENV{HOME}/.cache/lainsafelinks" or die $!;
+    open FILE,'>>',$LINKS_FILE or die $!;
     print FILE $DEFAULT_SERVER . "/" . $req->{_content} . " $file"  ."\n";
     close FILE;
   }
