@@ -1,0 +1,44 @@
+.\"Manpage for lainsafe
+.TH lainsafe 1
+.SH NAME
+lainsafe \- Simple file upload
+
+.SH DESCRIPTION
+
+lainsafe is a simple file upload server written in Perl + CGI.
+
+It runs in a Web server (i.e. nginx) with a CGI handler
+(i.e. fcgiwrap)
+
+.SH INSTALLATION
+
+You can use any web server for running lainsafe. However, nginx is
+recommended. The following configuration should work for nginx:
+
+.I /etc/nginx/sites-enabled/lainsafe.conf
+.in +4n
+.EX
+server
+{
+	server_name lainsafe.foo.tld;
+
+	listen 80;
+	listen [::]:80;
+	client_max_body_size 100m; # max size 100MBs, change 10 to 100
+				   # in upload.cgi in line 30
+	root /var/www/lainsafe;
+
+	location ~ \.cgi$ {
+		gzip off;
+		include /etc/nginx/fastcgi_params;
+		fastcgi_pass unix:/var/run/fcgiwrap.socket;
+		fastcgi_index index.cgi;
+		fastcgi_param SCRIPT_FILENAME /var/www/lainsafe/$fastcgi_script_name;
+	}
+}
+.EE
+
+The document root will be /var/www/lainsafe (be sure to change it in
+.I root
+and
+.I fastcgi_param SCRIPT_FILENAME if you're going to use another directory
