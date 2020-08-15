@@ -32,6 +32,17 @@ server will be used if no
 .I --server
 is given.
 
+.I --tor
+Uses tor to upload the file. This requires
+.I LWP::Protocol::socks
+to be installed on your system. You also need to have tor running at
+127.0.0.1:9050
+
+.I --get-response
+If the server returned an error, --get-response will make lainsafecli
+print the content, so it can help you find out why
+lainsafecli isn't working!
+
 .SH CONFIGURATION
 
 there are configuration values in

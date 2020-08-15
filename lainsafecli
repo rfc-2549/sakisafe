@@ -26,6 +26,7 @@ use warnings;
 # variables
 my $help;
 my $tor;
+my $get_response;
 my $DEFAULT_SERVER;
 my $file;
 my $DISPLAY_ASCII;
@@ -85,7 +86,8 @@ sub enable_tor
 
 GetOptions ("server=s" => \$DEFAULT_SERVER,
             "help|" => \$help,
-            "tor"=> \$tor
+            "tor"=> \$tor,
+	    "get-response"=>\$get_response
            );
 
 &help if $help || not defined $ARGV[0];
@@ -106,7 +108,8 @@ $ua->agent("Mozilla/5.0 (X11; Linux x86_64; rv:75.0) Gecko/20100101 Firefox/75.0
 # check if server is running lainsafe
 
 if (!$ua->get($url_to_upload)->is_success) {
-  print "$url_to_upload is not running lainsafe.\n";
+  print "$url_to_upload is not running lainsafe. (--get-response to check the error)\n";
+  print $ua->get($url_to_upload)->decoded_content if $get_response;
   exit;
 }
 
