@@ -34,7 +34,7 @@ my $STORE_LINKS;
 my $LINKS_FILE;
 my $tor_enabled = 1;
 # Default options, if no specified.
-$DEFAULT_SERVER = "https://lainsafe.delegao.moe";
+$DEFAULT_SERVER = "https://lainsafe.duckdns.org";
 $DISPLAY_ASCII = 1; # 0 if you don't want the ascii
 $STORE_LINKS = 1;   # 0 if you don't want to keep track of your upload
 $LINKS_FILE = "$ENV{HOME}/.cache/lainsafelinks";
