@@ -16,8 +16,6 @@
 # You should have received a copy of the GNU General Public License
 # along with lainsafe.  If not, see <https://www.gnu.org/licenses/>.
 
-
-
 use Getopt::Long;
 use LWP::UserAgent;
 my $ua = LWP::UserAgent->new;
@@ -72,7 +70,7 @@ sub help
     print "USAGE: lainsafecli [--tor] [--server] FILE\n\n";
     print "if --server not given, $DEFAULT_SERVER is used.\n";
     print "--tor is available\n" if $tor_enabled;
-    print "--tor is unavailable\n" unless $tor_enabled;
+    print "--tor is unavailable, flag is ignored\n" unless $tor_enabled;
     exit;
   }
 
@@ -87,11 +85,12 @@ sub enable_tor
 GetOptions ("server=s" => \$DEFAULT_SERVER,
             "help|" => \$help,
             "tor"=> \$tor,
-	    "get-response"=>\$get_response
+            "get-response"=>\$get_response
            );
 
 &help if $help || not defined $ARGV[0];
-&enable_tor if $tor;
+&enable_tor if $tor and $tor_enabled;
+
 
 # check if file is given
 
@@ -115,11 +114,11 @@ if (!$ua->get($url_to_upload)->is_success) {
 
 
 $req = $ua->post($url_to_upload,
-                 Content_Type => 'form-data',
-                 Content => [
-                             "file" => [ $file ],
-                            ],
-                );
+		 Content_Type => 'form-data',
+		 Content => [
+			     "file" => [ $file ],
+			    ],
+		);
 
 
 print $ASCII_ART if $DISPLAY_ASCII;
