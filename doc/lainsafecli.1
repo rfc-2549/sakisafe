@@ -37,6 +37,8 @@ Uses tor to upload the file. This requires
 .I LWP::Protocol::socks
 to be installed on your system. You also need to have tor running at
 127.0.0.1:9050
+If LWP::Protocol::socks is not installed, --tor is ignored, so don't 
+try it
 
 .I --get-response
 If the server returned an error, --get-response will make lainsafecli
