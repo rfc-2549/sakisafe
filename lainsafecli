@@ -76,7 +76,6 @@ sub help
 
 sub enable_tor
   {
-    die "Tor is unavaiable, install LWP::Protocols::socks\n" unless $tor_enabled;
     my $checker = $ua->proxy([qw(http https)] => 'socks://localhost:9050');
   }
 
