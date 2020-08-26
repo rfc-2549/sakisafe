@@ -16,6 +16,7 @@
 
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);
+use Time::HiRes qw(gettimeofday);
 my $q = CGI->new;
 
 my $filename = $q->param('file');
@@ -46,10 +47,10 @@ if($size > $MAX_SIZE)
 my $extension = $filename;
 $extension =~ s/.*\.//; # tar.gz sucks with this
 
-# Generate random string
-my @chars = ("A".."Z", "a".."z");
+# Get unix time in miliseconds
 my $string;
-$string .= $chars[rand @chars] for 1..8;
+$string = gettimeofday; # perl, what?
+$string =~ s/\.//g;
 
 my $upload_filehandle = $q->upload("file");
 
