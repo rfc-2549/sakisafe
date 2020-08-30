@@ -54,6 +54,10 @@ $string =~ s/\.//g;
 
 my $upload_filehandle = $q->upload("file");
 
+# onion urls will be http
+my $prot = length $ENV{HTTPS} ? "https" : "http";
+
+
 $filename = $string . "." . $extension;
 my $allowed_extension = 1;
 
@@ -77,10 +81,10 @@ if($allowed_extension)
     {
         print FILE;
     }
-
+    
     close FILE;
 
-    print $ENV{HTTP_REFERER} . "$upload_dir$filename";
+    print $prot. "://" . $ENV{HTTP_HOST} . "$upload_dir$filename";
 }
 
 else
