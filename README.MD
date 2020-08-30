@@ -82,6 +82,16 @@ https://lainsafe.delegao.moe/files/EWwEnBHk.png
 
 ~~~
 
+# Automatically removing files
+
+Try [lsd](https://git.kalli.st/czar/lsd) (lainsafe daemon)
+
+usage: `lsd <path> days`
+
+lsd wont work with versions before 8a557ca
+
+
+
 # Donate
 
 Thanks!
