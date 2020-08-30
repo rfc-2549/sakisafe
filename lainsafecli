@@ -126,10 +126,10 @@ if ($req->{_content} =~ /instance/) # If someone knows how to do it another way,
     print $req->{_content} . "\n";
     exit;
   }
-print $DEFAULT_SERVER . "/" . $req->{_content} . "\n";
+print $req->{_content} . "\n";
 
 if ($STORE_LINKS) {
   open FILE,'>>',$LINKS_FILE or die $!;
-  print FILE $DEFAULT_SERVER . "/" . $req->{_content} . " $file"  ."\n";
+  print FILE $req->{_content} . " $file"  ."\n";
   close FILE;
 }
