@@ -24,20 +24,21 @@ use warnings;
 # variables
 my $help;
 my $tor;
+my $i2p;
 my $get_response;
 my $DEFAULT_SERVER;
 my $file;
 my $DISPLAY_ASCII;
 my $STORE_LINKS;
 my $LINKS_FILE;
-my $tor_enabled = 1;
+my $proxy_enabled = 1;
 # Default options, if no specified.
 $DEFAULT_SERVER = "https://lainsafe.duckdns.org";
 $DISPLAY_ASCII = 1; # 0 if you don't want the ascii
 $STORE_LINKS = 1;   # 0 if you don't want to keep track of your upload
 $LINKS_FILE = "$ENV{HOME}/.cache/lainsafelinks";
 
-eval "use LWP::Protocol::socks; 1" or $tor_enabled = 0;
+eval "use LWP::Protocol::socks; 1" or $proxy_enabled = 0;
 my $ASCII_ART = <<'EOF';
            _..-- ----- --.._
         ,-''                `-.
@@ -67,10 +68,10 @@ EOF
 sub help
   {
     print "lainsafecli, a command line interface for lainsafe.\n";
-    print "USAGE: lainsafecli [--tor] [--server] FILE\n\n";
+    print "USAGE: lainsafecli [--tor | --i2p] [--server] FILE\n\n";
     print "if --server not given, $DEFAULT_SERVER is used.\n";
-    print "--tor is available\n" if $tor_enabled;
-    print "--tor is unavailable, flag is ignored\n" unless $tor_enabled;
+    print "--tor and --i2p are available\n" if $proxy_enabled;
+    print "--tor and --i2p are unavailable, flag are ignored\n" unless $proxy_enabled;
     exit;
   }
 
@@ -79,16 +80,27 @@ sub enable_tor
     my $checker = $ua->proxy([qw(http https)] => 'socks://localhost:9050');
   }
 
+sub enable_i2p
+  {
+    my $checker = $ua->proxy([qw(http https)] => 'socks://localhost:4444');
+  }
+
 ## PROGRAM
 
 GetOptions ("server=s" => \$DEFAULT_SERVER,
             "help|" => \$help,
             "tor"=> \$tor,
+            "i2p"=>\$i2p,
             "get-response"=>\$get_response
            );
 
 &help if $help || not defined $ARGV[0];
-&enable_tor if $tor and $tor_enabled;
+if ($i2p and $tor) {
+  print "What are you trying to do? I don't really get you sometimes...\n";
+  exit;
+}
+&enable_tor if $tor and $proxy_enabled;
+&enable_i2p if $i2p and $proxy_enabled;
 
 
 # check if file is given
@@ -113,11 +125,11 @@ if (!$ua->get($url_to_upload)->is_success) {
 
 
 $req = $ua->post($url_to_upload,
-		 Content_Type => 'form-data',
-		 Content => [
-			     "file" => [ $file ],
-			    ],
-		);
+                 Content_Type => 'form-data',
+                 Content => [
+                             "file" => [ $file ],
+                            ],
+                );
 
 
 print $ASCII_ART if $DISPLAY_ASCII;
@@ -133,3 +145,4 @@ if ($STORE_LINKS) {
   print FILE $req->{_content} . " $file"  ."\n";
   close FILE;
 }
+print $i2p;
