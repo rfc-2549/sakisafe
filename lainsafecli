@@ -145,4 +145,3 @@ if ($STORE_LINKS) {
   print FILE $req->{_content} . " $file"  ."\n";
   close FILE;
 }
-print $i2p;
