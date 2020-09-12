@@ -84,7 +84,7 @@ if($allowed_extension)
     
     close FILE;
 
-    print $prot. "://" . $ENV{HTTP_HOST} . "$upload_dir$filename";
+    print $prot. "://" . $ENV{HTTP_HOST} . "/$upload_dir$filename";
 }
 
 else
