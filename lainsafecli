@@ -82,7 +82,7 @@ sub enable_tor
 
 sub enable_i2p
   {
-    my $checker = $ua->proxy([qw(http https)] => 'socks://localhost:4444');
+    my $checker = $ua->proxy([qw(http https)] => 'http://localhost:4444');
   }
 
 ## PROGRAM
