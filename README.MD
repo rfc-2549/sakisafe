@@ -99,3 +99,4 @@ Thanks!
 [Liberapay](https://liberapay.com/qorg11)
 
 Bitcoin: bc1qghl6f27dpgktynpvkrxte2s3gm9pcv8vlwuzum
+Monero: 47QTumjtqJabbo1s9pLDdXeJarLVLfs1AaEcbi1xrEiV852mqcbe5AHLNXTk7tH9MscxcxQDfJQnvH5LpxvfgwSJQZ3zbS6
