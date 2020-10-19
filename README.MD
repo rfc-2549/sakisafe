@@ -90,6 +90,11 @@ usage: `lsd <path> days`
 
 lsd wont work with versions before 8a557ca
 
+# but perl sux!!
+
+No problem, [Lainsafe rewritten in
+PHP](https://ech1.github.io/blog/servers/phpfilesafe/index.html)
+(Not sure if it is compatible with lainsafecli, probably not)
 
 
 # Donate
