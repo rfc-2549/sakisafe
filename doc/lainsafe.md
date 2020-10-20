@@ -12,7 +12,7 @@ It runs in a Web server (i.e. nginx) with a CGI handler (i.e. fcgiwrap)
 
 You also have to install the dependencies, in Debian:
 
-**apt install nginx libcgi-pm-perl**
+    apt install nginx libcgi-pm-perl
 
 INSTALLATION
 ============
