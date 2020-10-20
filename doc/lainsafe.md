@@ -60,12 +60,14 @@ TROUBLESHOOTING
 Probably you\'re missing the *CGI* dependence, so install it with CPAN
 or apt
 
-*cpan -i CGI*
+    cpan -i CGI
+    apt install libcgi-pm-perl
 
-*apt install libcgi-pm-perl*
+If you still get this problem, run
 
-If you still get this problem, run *perl \<file\>.cgi* so perl can help
-you debug the problem.
+    perl <file>.cgi
+
+so perl can help you debug the problem.
 
 **403 is returned**
 

@@ -64,12 +64,18 @@ Probably you're missing the
 .I CGI
 dependence, so install it with CPAN or apt
 
-.I cpan -i CGI
-
-.I apt install libcgi-pm-perl
-
+.in +4n
+.EX
+cpan -i CGI
+apt install libcgi-pm-perl
+.EE
+.PP
 If you still get this problem, run
-.I perl <file>.cgi
+.in +4n
+.EX
+perl <file>.cgi
+.EE
+.PP
 so perl can help you debug the problem.
 
 .B 403 is returned
