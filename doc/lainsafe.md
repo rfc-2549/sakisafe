@@ -47,8 +47,9 @@ another directory*
 
 You also have to give the .cgi files +x permissions:
 
-*chmod +x \*.cgi*
+    chmod +x *.cgi
 
+And also, create the \"files\" directory manually, and give it
 permissions so the user that is running nginx (usually) *www-data* can
 write on it.
 

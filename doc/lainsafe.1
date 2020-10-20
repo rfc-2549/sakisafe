@@ -49,9 +49,13 @@ and
 
 You also have to give the .cgi files +x permissions:
 
-.I chmod +x *.cgi
+.in +4n
+.EX
+chmod +x *.cgi
+.EE
 
-.And also, create the "files" directory manually, and give it
+.PP
+And also, create the "files" directory manually, and give it
 permissions so the user that is running nginx (usually)
 .I www-data
 can write on it.
