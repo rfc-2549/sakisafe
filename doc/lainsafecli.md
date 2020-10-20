@@ -49,13 +49,15 @@ specified by *\$LINKS\_FILE*
 TROUBLESHOOTING
 ===============
 
-**whatever is not running lainsafe. But works in the browser.**
+whatever is not running lainsafe. But works in the browser.
+-----------------------------------------------------------
 
 This only happens with https lainsafe instances. To solve that. Make
 sure that the module *LWP::UserAgent::https* is installed. You can
 install it using *cpan(1)*
 
-**HTTP 413 is returned**
+HTTP 413 is returned
+--------------------
 
 The file you specified is too big for the instance. Try using another
 instance. By default lainsafe supports up to 100MBs. But this can be

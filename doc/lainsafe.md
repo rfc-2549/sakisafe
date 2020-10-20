@@ -56,7 +56,8 @@ write on it.
 TROUBLESHOOTING
 ===============
 
-**502 Bad Gateway**
+502 Bad Gateway
+---------------
 
 Probably you\'re missing the *CGI* dependence, so install it with CPAN
 or apt
@@ -70,6 +71,7 @@ If you still get this problem, run
 
 so perl can help you debug the problem.
 
-**403 is returned**
+403 is returned
+---------------
 
 You probably forgot to give the files execution permissions.
