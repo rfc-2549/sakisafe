@@ -8,6 +8,9 @@
    the file
 2. There you go.
 
+For more detailed information, look at the
+[manpage](https://codeberg.org/qorg11/lainsafe/src/branch/master/doc/lainsafe.md)
+
 ## lainsafecli
 
 ### Installation
