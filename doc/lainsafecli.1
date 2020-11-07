@@ -40,6 +40,12 @@ to be installed on your system. You also need to have tor running at
 If LWP::Protocol::socks is not installed, --tor is ignored, so don't 
 try it
 
+.I --i2p
+Routes the traffic through I2P. This uses the HTTP proxy (which is
+normally in port 4444). So
+.I LWP::Protocol::socks
+is not necessary.
+
 .I --get-response
 If the server returned an error, --get-response will make lainsafecli
 print the content, so it can help you find out why
