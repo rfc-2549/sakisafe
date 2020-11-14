@@ -6,21 +6,21 @@ lainsafecli - Command line interface for lainsafe
 SYNOPSIS
 ========
 
-lainsafecli *\[\--server=server\]* file
+lainsafecli *\[\--tor \| \--i2p\] \[\--server\]* file
 
 DESCRIPTION
 ===========
 
 *lainsafecli* uploads a file to a given lainsafe server. This server may
 be specified with the *\--server* flag. If *\--server* is not given. The
-content of the variable *\$DEFAULT\_SERVER* will be used instead. This
+content of the variable *\$DEFAULT_SERVER* will be used instead. This
 variable is in the script. In the official packages. this is
 https://lainsafe.delegao.moe
 
 OPTIONS
 =======
 
-*\--server* Sets the server to use. If it is not given \$DEFAULT\_SERVER
+*\--server* Sets the server to use. If it is not given \$DEFAULT_SERVER
 will be used instead.
 
 *\--help* Displays a simple help message and exits. This also specify
@@ -31,6 +31,9 @@ which server will be used if no *\--server* is given.
 have tor running at 127.0.0.1:9050 If LWP::Protocol::socks is not
 installed, \--tor is ignored, so don\'t try it
 
+*\--i2p* Routes the traffic through I2P. This uses the HTTP proxy (which
+is normally in port 4444). So *LWP::Protocol::socks* is not necessary.
+
 *\--get-response* If the server returned an error, \--get-response will
 make lainsafecli print the content, so it can help you find out why
 lainsafecli isn\'t working!
@@ -40,11 +43,11 @@ CONFIGURATION
 
 there are configuration values in *lainsafecli* line 34.
 
-*\$DISPLAY\_ASCII* If true (Any number but 0), It will display an ASCII
+*\$DISPLAY_ASCII* If true (Any number but 0), It will display an ASCII
 art if no error returned.
 
-*\$STORE\_LINKS* If true, lainsafecli will store the links on a file,
-specified by *\$LINKS\_FILE*
+*\$STORE_LINKS* If true, lainsafecli will store the links on a file,
+specified by *\$LINKS_FILE*
 
 TROUBLESHOOTING
 ===============
