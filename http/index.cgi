@@ -19,8 +19,12 @@ my $disk_usage = `df -h | awk 'NR==2 {print \$3; exit}'`;
 my $disk_free = `df -h | awk 'NR==2 {print \$4; exit}'`;
 my $disk_percentage = `df -h | awk 'NR==2 {print \$5; exit}'`;
 
-print "Content-type: text/html\n\n";
+if ($ENV{REQUEST_METHOD} eq "POST") {
+  do "./upload.cgi";
+  exit;
+}
 
+print "Content-type: text/html\n\n";
 print "<!DOCTYPE html>
 <html lang=\"en\">
   <head>
@@ -37,9 +41,9 @@ print "<!DOCTYPE html>
       <input type='submit' value='upload'>
     </form>
     <a href='https://github.com/qorg11/lainsafe'>star me</a>
-
-
+   <h2>Terminal usage</h2>
+   <p>I recommend using lainsafecli to upload files to lainsafe, however, there is more than one way to do it.</p>
+   <code>curl -F 'file=@1605388889.png' $ENV{HTTP_HOST}$ENV{REQUEST_URI}</code><br/>
+print $disk_free . available from . $disk_size . total;
   </body>
     </html>";
-
-print $disk_free ." available from ". $disk_size ." total";
