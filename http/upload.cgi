@@ -46,7 +46,7 @@ if($size > $MAX_SIZE)
 
 my $extension = $filename;
 $extension =~ s/.*\.//; # tar.gz sucks with this
-
+$extension = "notcgi" if $extension eq "cgi";
 # Get unix time in miliseconds
 my $string;
 $string = gettimeofday; # perl, what?
