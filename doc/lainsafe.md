@@ -12,7 +12,7 @@ It runs in a Web server (i.e. nginx) with a CGI handler (i.e. fcgiwrap)
 
 You also have to install the dependencies, in Debian:
 
-    apt install nginx libcgi-pm-perl
+    apt install nginx libcgi-pm-perl fcgiwrap
 
 INSTALLATION
 ============
@@ -42,7 +42,7 @@ recommended. The following configuration should work for nginx:
     }
 
 The document root will be /var/www/lainsafe (be sure to change it in
-*root* and *fastcgi\_param SCRIPT\_FILENAME if you\'re going to use
+*root* and *fastcgi_param SCRIPT_FILENAME if you\'re going to use
 another directory*
 
 You also have to give the .cgi files +x permissions:
@@ -52,6 +52,8 @@ You also have to give the .cgi files +x permissions:
 And also, create the \"files\" directory manually, and give it
 permissions so the user that is running nginx (usually) *www-data* can
 write on it.
+
+    chown www-data:www-data files
 
 TROUBLESHOOTING
 ===============

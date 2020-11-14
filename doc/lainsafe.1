@@ -14,7 +14,7 @@ You also have to install the dependencies, in Debian:
 
 .in +4n
 .EX
-apt install nginx libcgi-pm-perl
+apt install nginx libcgi-pm-perl fcgiwrap
 .EE
 
 .SH INSTALLATION
@@ -62,6 +62,10 @@ And also, create the "files" directory manually, and give it
 permissions so the user that is running nginx (usually)
 .I www-data
 can write on it.
+
+.EX
+chown www-data:www-data files
+.EE
 
 .SH TROUBLESHOOTING
 
