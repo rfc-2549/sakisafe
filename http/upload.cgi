@@ -20,7 +20,6 @@ use Time::HiRes qw(gettimeofday);
 my $q = CGI->new;
 
 my $filename = $q->param('file');
-# TODO: fix 502
 
 my $upload_dir = "files/";
 print $q->header();
@@ -32,7 +31,7 @@ our $MAX_SIZE = 1024*1024*10; # Change for your size
 our $MAX_SIZE_MB = $MAX_SIZE / 1024 / 1024; # Don't change this
 our @not_allowed_extensions = qw(sh out exe);
 
-if($filename eq "")
+if($filename eq "" || $ENV{REQUEST_METHOD} eq "GET")
 {
     print("What are you looking for?");
     exit;
