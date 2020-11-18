@@ -56,11 +56,8 @@ Lain ascii art to appear when you upload a file.
 ### Example
 
 ~~~
-$ lainsafecli --server https://lainsafe.delegao.moe sicp.png
-
-
-                
-           _..-- ----- --.._
+$ lainsafecli --server https://lainsafe.delegao.moe siccp.png
+	   _..-- ----- --.._
         ,-''                `-.
        ,                       \
       /                         \
@@ -80,9 +77,8 @@ $ lainsafecli --server https://lainsafe.delegao.moe sicp.png
        v,-    `;._   _.;     | |
           `'`\ |-_      -^'^'| |
                   ------     |/
-          
-https://lainsafe.delegao.moe/files/EWwEnBHk.png
 
+https://lainsafe.delegao.moe/files/160572227741108.png
 ~~~
 
 # Automatically removing files
