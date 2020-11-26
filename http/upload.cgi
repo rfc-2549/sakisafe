@@ -27,7 +27,7 @@ $size    = $ENV{CONTENT_LENGTH};
 
 # Configuration
 
-our $MAX_SIZE = 1024*1024*10; # Change for your size
+our $MAX_SIZE = 1024*1024*100; # Change for your size
 our $MAX_SIZE_MB = $MAX_SIZE / 1024 / 1024; # Don't change this
 our @not_allowed_extensions = qw(sh out exe);
 
