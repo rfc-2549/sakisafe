@@ -75,9 +75,14 @@ lsd wont work with versions before 8a557ca
 
 # but perl sux!!
 
-No problem, [Lainsafe rewritten in
-PHP](https://ech1.github.io/blog/servers/phpfilesafe/index.html)
-(Not sure if it is compatible with lainsafecli, probably not)
+No problem, [use this
+then](https://ech1.github.io/blog/servers/phpfilesafe/index.html)
+
+You don't have to use lainsafecli either, you can just use curl:
+
+`curl -F"file=@file" <server>`
+
+or just use [hlainsafecli](https://codeberg.org/suguivy/hlainsafecli)
 
 
 # Donate
