@@ -15,22 +15,6 @@ For more detailed information, look at the
 
 ### Installation
 
-#### Debian
-Lainsafe has official packages for Debian, they shold work for any
-dpkg-based distro, such as Ubuntu and so on
-
-You can download a possible outdated deb package
-[here](http://repo.qorg11.net/debian/pool/main/l/lainsafecli/lainsafecli_0.3_all.deb)
-
-If you want updates for your package, you have to add
-`repo.qorg11.net` to your sources.list:
-
-~~~
-echo "deb http://repo.qorg11.net/debian stable main" >> /etc/apt/sources.list
-wget http://repo.qorg11.net/repo.key -q -O - | sudo apt-key add
-sudo apt updates
-sudo apt install lainsafecli
-~~~
 #### Arch
 [AUR - `lainsafecli`](https://aur.archlinux.org/packages/lainsafecli/)
 
