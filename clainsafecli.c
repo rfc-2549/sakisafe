@@ -11,6 +11,21 @@ size_t static write_data(void *buffer, size_t size, size_t nmemb, void *userp)
      return 0;
 }
 
+void
+print_usage()
+{
+	printf("USAGE: clainsafecli [--server] file\n");
+	return;
+}
+
+void
+print_help()
+{
+	printf("--server <server>: specifies the lainsafe server\n%s",
+		"--help: print this message\n");
+	return;
+}
+
 int
 main(int argc, char **argv)
 {
@@ -26,40 +41,50 @@ main(int argc, char **argv)
 		return -1;
 	}
 	if(argc == optind) {
-		printf("%s server file\n",argv[0]);
+	     print_usage();
 		return -1;
 	}
 	int option_index = 0;
 
 	static struct option long_options[] = {
 		{"server",required_argument,0,'s'},
+		{"help"  ,no_argument      ,0,'h'},
 		{0       ,0                ,0, 0 }
 	};
 	int c = 0;
-	while((c = getopt_long(argc,argv, "s:",long_options,&option_index)) != -1) {
+	while((c = getopt_long(argc,argv, "hs:",long_options,&option_index)) != -1) {
 		switch(c) {
 		case 's':
 			strncpy(server,optarg,256);
 			break;
+		case 'h':
+			print_help();
+			return 0;
+			break; 
 		case '?':
-			fprintf(stderr,"Unrecognized argument\n");
-			return -1;
+			print_usage();
+			return 0;
 			break;
 		default:
-			return -1;
+			print_usage();
+			return 0;
 			break;
 		}
 
 	}
+	/* curl options */ 
 	curl_easy_setopt(easy_handle, CURLOPT_WRITEFUNCTION, write_data);
 	curl_easy_setopt(easy_handle,CURLOPT_WRITEDATA,buffer);
 	curl_easy_setopt(easy_handle,CURLOPT_URL,server);
-	
+
+	/* Form parameters */
+
+	/* File name */
 	curl_formadd(&post,&last,
 		CURLFORM_COPYNAME, "file",
 		CURLFORM_FILE,argv[optind],
 		CURLFORM_END);
-
+	/* Actual file content */
 	curl_formadd(&post,&last,
 		CURLFORM_COPYNAME, "file",
 		CURLFORM_COPYCONTENTS,argv[optind],
