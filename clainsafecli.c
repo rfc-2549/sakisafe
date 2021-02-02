@@ -7,8 +7,8 @@
 
 size_t static write_data(void *buffer, size_t size, size_t nmemb, void *userp)
 {
-     memcpy(userp, buffer, nmemb*size);
-     return 0;
+	memcpy(userp, buffer, nmemb*size);
+	return 0;
 }
 
 void
@@ -21,7 +21,8 @@ print_usage()
 void
 print_help()
 {
-	printf("--server <server>: specifies the lainsafe server\n%s",
+	printf("--server <server>: specifies the lainsafe server\n%s\n%s",
+		"--tor: uses tor",
 		"--help: print this message\n");
 	return;
 }
@@ -29,9 +30,11 @@ print_help()
 int
 main(int argc, char **argv)
 {
-	struct curl_httppost *post=NULL;
-	struct curl_httppost *last=NULL;
+	struct curl_httppost *post = NULL;
+	struct curl_httppost *last = NULL;
 
+	int tor_flag = 0;
+	
 	char *buffer = (char *)calloc(1024,sizeof(char));
 	char server[256] = "https://lainsafe.kalli.st";
 	
@@ -49,10 +52,12 @@ main(int argc, char **argv)
 	static struct option long_options[] = {
 		{"server",required_argument,0,'s'},
 		{"help"  ,no_argument      ,0,'h'},
+		{"tor"   ,no_argument      ,0,'t'},
 		{0       ,0                ,0, 0 }
 	};
+
 	int c = 0;
-	while((c = getopt_long(argc,argv, "hs:",long_options,&option_index)) != -1) {
+	while((c = getopt_long(argc,argv, "hts:",long_options,&option_index)) != -1) {
 		switch(c) {
 		case 's':
 			strncpy(server,optarg,256);
@@ -60,7 +65,8 @@ main(int argc, char **argv)
 		case 'h':
 			print_help();
 			return 0;
-			break; 
+			break;
+		case 't': tor_flag = 1; break;
 		case '?':
 			print_usage();
 			return 0;
@@ -72,11 +78,18 @@ main(int argc, char **argv)
 		}
 
 	}
+
 	/* curl options */ 
 	curl_easy_setopt(easy_handle, CURLOPT_WRITEFUNCTION, write_data);
 	curl_easy_setopt(easy_handle,CURLOPT_WRITEDATA,buffer);
 	curl_easy_setopt(easy_handle,CURLOPT_URL,server);
 
+	if(tor_flag) {
+		curl_easy_setopt(easy_handle,CURLOPT_PROXY,"127.0.0.1:9050");
+		curl_easy_setopt(easy_handle,CURLOPT_PROXYTYPE,
+			CURLPROXY_SOCKS5_HOSTNAME);
+	}
+	
 	/* Form parameters */
 
 	/* File name */
