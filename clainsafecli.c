@@ -39,6 +39,9 @@ main(int argc, char **argv)
 	tor_flag = i2p_flag = 0;
 	
 	char *buffer = (char *)calloc(1024,sizeof(char));
+	if(buffer == NULL) {
+		fprintf(stderr,"Error allocating memory!\n");
+	}
 	char server[256] = "https://lainsafe.kalli.st";
 	
 	CURL *easy_handle = curl_easy_init();
