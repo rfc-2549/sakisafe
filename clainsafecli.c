@@ -5,9 +5,8 @@
 #include <getopt.h>
 #include <curl/curl.h>
 
-
 size_t static write_data(void *buffer, size_t size, size_t nmemb,
-	void *userp)
+					void *userp)
 {
 	memcpy(userp, buffer, nmemb*size);
 	return 0;
@@ -16,16 +15,18 @@ size_t static write_data(void *buffer, size_t size, size_t nmemb,
 void
 print_usage()
 {
-	printf("USAGE: clainsafecli [--server] file\n");
+	printf("USAGE: clainsafecli [--tor|--i2p] [--server] file\n");
 	return;
 }
 
 void
 print_help()
 {
-	printf("--server <server>: specifies the lainsafe server\n%s\n%s",
-		"--tor: uses tor",
-		"--help: print this message\n");
+	printf("--server <server>: specifies the lainsafe server\n%s\n%s\n%s",
+		  "--tor: uses tor",
+		  "--help: print this message\n",
+		  "--i2p: uses i2p HTTP proxy"
+		);
 	return;
 }
 
@@ -65,7 +66,7 @@ main(int argc, char **argv)
 
 	int c = 0;
 	while((c = getopt_long(argc,argv, "htis:",
-				long_options,&option_index)) != -1) {
+					   long_options,&option_index)) != -1) {
 		switch(c) {
 		case 's':
 			strncpy(server,optarg,256);
@@ -105,25 +106,25 @@ main(int argc, char **argv)
 	} else if(tor_flag) {
 		curl_easy_setopt(easy_handle,CURLOPT_PROXY,"127.0.0.1:9050");
 		curl_easy_setopt(easy_handle,CURLOPT_PROXYTYPE,
-			CURLPROXY_SOCKS5_HOSTNAME);
+					  CURLPROXY_SOCKS5_HOSTNAME);
 	} else if(i2p_flag) {
 		curl_easy_setopt(easy_handle,CURLOPT_PROXY,"127.0.0.1:4444");
 		curl_easy_setopt(easy_handle,CURLOPT_PROXYTYPE,
-			CURLPROXY_HTTP);
+					  CURLPROXY_HTTP);
 	}
 
 	/* Form parameters */
 
 	/* File name */
 	curl_formadd(&post,&last,
-		CURLFORM_COPYNAME, "file",
-		CURLFORM_FILE,argv[optind],
-		CURLFORM_END);
+			   CURLFORM_COPYNAME, "file",
+			   CURLFORM_FILE,argv[optind],
+			   CURLFORM_END);
 	/* Actual file content */
 	curl_formadd(&post,&last,
-		CURLFORM_COPYNAME, "file",
-		CURLFORM_COPYCONTENTS,argv[optind],
-		CURLFORM_END);
+			   CURLFORM_COPYNAME, "file",
+			   CURLFORM_COPYCONTENTS,argv[optind],
+			   CURLFORM_END);
 
 	curl_easy_setopt(easy_handle,CURLOPT_HTTPPOST,post);
 	
