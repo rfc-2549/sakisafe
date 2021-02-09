@@ -67,6 +67,8 @@ EOF
 
 # Subs
 
+print "This script is kind of deprecated. Use clainsafecli instead.\n";
+
 sub help
     {
 	   print "lainsafecli, a command line interface for lainsafe.\n";
