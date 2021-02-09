@@ -5,47 +5,10 @@
 #include <getopt.h>
 #include <errno.h>
 #include <curl/curl.h>
+#include <math.h>
 
 #include "options.h"
-
-size_t static write_data(void *buffer, size_t size, size_t nmemb,
-	void *userp)
-{
-	memcpy(userp, buffer, nmemb*size);
-	return 0;
-}
-
-void
-print_usage()
-{
-	printf("USAGE: clainsafecli [--tor|--i2p] [--server] file\n");
-	return;
-}
-
-int
-store_link(const char *path, const char *buf)
-{
-	FILE *fp = fopen(path,"a+");
-	if(fp == NULL) {
-		fprintf(stderr,"Error opening file %i: %s\n",errno,
-			strerror(errno));
-		return -1;
-	}
-	fwrite(buf,strlen(buf),1,fp);
-	fputc('\n',fp);
-	return 0;
-}
-
-void
-print_help()
-{
-	printf("--server <server>: specifies the lainsafe server\n%s\n%s\n%s",
-		"--tor: uses tor",
-		"--help: print this message\n",
-		"--i2p: uses i2p HTTP proxy"
-		);
-	return;
-}
+#include "clainsafecli.h"
 
 int
 main(int argc, char **argv)
@@ -55,22 +18,23 @@ main(int argc, char **argv)
 
 	int tor_flag, i2p_flag;
 	tor_flag = i2p_flag = 0;
-	
+
 	char *buffer = (char *)calloc(1024,sizeof(char));
 	if(buffer == NULL) {
 		fprintf(stderr,"Error allocating memory!\n");
+		return -1;
 	}
 	CURL *easy_handle = curl_easy_init();
-	
+
 	if(!easy_handle) {
 		fprintf(stderr,"Error initializing libcurl\n");
 		return -1;
 	}
 	if(argc == optind) {
-	     print_usage();
+		print_usage();
 		return -1;
 	}
-	
+
 	int option_index = 0;
 	static struct option long_options[] = {
 		{"server",required_argument,0,'s'},
@@ -113,14 +77,14 @@ main(int argc, char **argv)
 		fprintf(stderr,"Error opening file\n");
 		return -1;
 	}
-	
+
 	/* curl options */
-	curl_easy_setopt(easy_handle, CURLOPT_WRITEFUNCTION, write_data);
+	curl_easy_setopt(easy_handle,CURLOPT_WRITEFUNCTION, write_data);
 	curl_easy_setopt(easy_handle,CURLOPT_WRITEDATA,buffer);
 	curl_easy_setopt(easy_handle,CURLOPT_URL,server);
 
 	/* Proxy options */
-	
+
 	if(tor_flag && i2p_flag) {
 		fprintf(stderr,"Tor and I2P can't be used at once\n");
 		return -1;
@@ -147,12 +111,20 @@ main(int argc, char **argv)
 		CURLFORM_COPYCONTENTS,argv[optind],
 		CURLFORM_END);
 
+	/* Progress bar
+	 * 
+	 * TODO: Use a custom progress bar rather than
+	 * default curl progress bar
+	 * 
+	 */
+
+	curl_easy_setopt(easy_handle,CURLOPT_NOPROGRESS,0L);
 	curl_easy_setopt(easy_handle,CURLOPT_HTTPPOST,post);
-	
+
 	curl_easy_perform(easy_handle);
 
 	puts(buffer);
-	
+
 	curl_formfree(post);
 	curl_easy_cleanup(easy_handle);
 
@@ -163,5 +135,33 @@ main(int argc, char **argv)
 		store_link(history_file_path,buffer);
 	}
 	free(buffer);
+	return 0;
+}
+
+size_t static write_data(void *buffer, size_t size, size_t nmemb,
+	void *userp)
+{
+	memcpy(userp, buffer, nmemb*size);
+	return 0;
+}
+
+void
+print_usage()
+{
+	printf("USAGE: clainsafecli [--tor|--i2p] [--server] file\n");
+	return;
+}
+
+int
+store_link(const char *path, const char *buf)
+{
+	FILE *fp = fopen(path,"a+");
+	if(fp == NULL) {
+		fprintf(stderr,"Error opening file %i: %s\n",errno,
+			strerror(errno));
+		return -1;
+	}
+	fwrite(buf,strlen(buf),1,fp);
+	fputc('\n',fp);
 	return 0;
 }

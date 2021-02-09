@@ -16,6 +16,8 @@
 # You should have received a copy of the GNU General Public License
 # along with lainsafe.  If not, see <https://www.gnu.org/licenses/>.
 
+# This script is kind of deprecated. Use clainsafecli instead.
+
 use Getopt::Long;
 use LWP::UserAgent;
 my $ua = LWP::UserAgent->new;
@@ -66,24 +68,24 @@ EOF
 # Subs
 
 sub help
-  {
-    print "lainsafecli, a command line interface for lainsafe.\n";
-    print "USAGE: lainsafecli [--tor | --i2p] [--server] FILE\n\n";
-    print "if --server not given, $DEFAULT_SERVER is used.\n";
-    print "--tor and --i2p are available\n" if $proxy_enabled;
-    print "--tor and --i2p are unavailable, flag are ignored\n" unless $proxy_enabled;
-    exit;
-  }
+    {
+	   print "lainsafecli, a command line interface for lainsafe.\n";
+	   print "USAGE: lainsafecli [--tor | --i2p] [--server] FILE\n\n";
+	   print "if --server not given, $DEFAULT_SERVER is used.\n";
+	   print "--tor and --i2p are available\n" if $proxy_enabled;
+	   print "--tor and --i2p are unavailable, flag are ignored\n" unless $proxy_enabled;
+	   exit;
+    }
 
 sub enable_tor
-  {
-    my $checker = $ua->proxy([qw(http https)] => 'socks://localhost:9050');
-  }
+    {
+	   my $checker = $ua->proxy([qw(http https)] => 'socks://localhost:9050');
+    }
 
 sub enable_i2p
-  {
-    my $checker = $ua->proxy([qw(http https)] => 'http://localhost:4444');
-  }
+    {
+	   my $checker = $ua->proxy([qw(http https)] => 'http://localhost:4444');
+    }
 
 ## PROGRAM
 
@@ -92,12 +94,12 @@ GetOptions ("server=s" => \$DEFAULT_SERVER,
             "tor"=> \$tor,
             "i2p"=>\$i2p,
             "get-response"=>\$get_response
-           );
+	   );
 
 &help if $help || not defined $ARGV[0];
 if ($i2p and $tor) {
-  print "What are you trying to do? I don't really get you sometimes...\n";
-  exit;
+    print "What are you trying to do? I don't really get you sometimes...\n";
+    exit;
 }
 &enable_tor if $tor and $proxy_enabled;
 &enable_i2p if $i2p and $proxy_enabled;
@@ -121,30 +123,31 @@ substr($DEFAULT_SERVER, 0, 0, 'https://') unless $DEFAULT_SERVER =~ /^(http|http
 
 my $url_to_upload = $DEFAULT_SERVER . "/upload.cgi";
 if (!$ua->get($url_to_upload)->is_success) {
-  print "$url_to_upload is not running lainsafe. (--get-response to check the error)\n";
-  print $ua->get($url_to_upload)->decoded_content if $get_response;
-  exit;
+    print "$url_to_upload is not running lainsafe. (--get-response to check the error)\n";
+    print $ua->get($url_to_upload)->decoded_content if $get_response;
+    exit;
 }
 
 
 $req = $ua->post($url_to_upload,
                  Content_Type => 'form-data',
                  Content => [
-                             "file" => [ $file ],
-                            ],
-                );
+				 "file" => [ $file ],
+			  ],
+		   );
 
 
 print $ASCII_ART if $DISPLAY_ASCII;
 if ($req->{_content} =~ /instance/) # If someone knows how to do it another way, I'm all ears
-  {
-    print $req->{_content} . "\n";
-    exit;
-  }
+    {
+	   print $req->{_content} . "\n";
+	   exit;
+    }
 print $req->{_content} . "\n";
 
 if ($STORE_LINKS) {
-  open FILE,'>>',$LINKS_FILE or die $!;
-  print FILE $req->{_content} . " $file"  ."\n";
-  close FILE;
+    open FILE,'>>',$LINKS_FILE or die $!;
+    print FILE $req->{_content} . " $file"  ."\n";
+    close FILE;
 }
+
