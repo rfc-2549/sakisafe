@@ -1,7 +1,7 @@
 /* clainsafecli options */
 
 /* Default server you'll upload files to */
-char server[256]               = "https://lainsafe.kalli.st";
+char *server                   = "https://lainsafe.kalli.st";
 
 /* proxy urls, socks and http. in that order, by default they're
  * configured to be used for tor and i2p, but if you have another

@@ -49,7 +49,7 @@ main(int argc, char **argv)
 				long_options,&option_index)) != -1) {
 		switch(c) {
 		case 's':
-			strncpy(server,optarg,256);
+			server = optarg;
 			break;
 		case 'h':
 			print_help();
@@ -164,4 +164,13 @@ store_link(const char *path, const char *buf)
 	fwrite(buf,strlen(buf),1,fp);
 	fputc('\n',fp);
 	return 0;
+}
+
+void
+print_help()
+{
+	printf("--server <server>: specifies the lainsafe server\n%s\n%s",
+		"--tor: uses tor",
+		"--help: print this message\n");
+	return;
 }
