@@ -18,7 +18,7 @@ main(int argc, char **argv)
 
 	int tor_flag, i2p_flag;
 	tor_flag = i2p_flag = 0;
-
+	long silent_flag = 0L;
 	char *buffer = (char *)calloc(1024,sizeof(char));
 	if(buffer == NULL) {
 		fprintf(stderr,"Error allocating memory!\n");
@@ -41,11 +41,13 @@ main(int argc, char **argv)
 		{"help"  ,no_argument      ,0,'h'},
 		{"tor"   ,no_argument      ,0,'t'},
 		{"i2p"   ,no_argument      ,0,'i'},
+		{"silent",no_argument      ,0,'S'},
 		{0       ,0                ,0, 0 }
+
 	};
 
 	int c = 0;
-	while((c = getopt_long(argc,argv, "htis:",
+	while((c = getopt_long(argc,argv, "htiSs:",
 				long_options,&option_index)) != -1) {
 		switch(c) {
 		case 's':
@@ -60,6 +62,9 @@ main(int argc, char **argv)
 			break;
 		case 'i':
 			i2p_flag = 1;
+			break;
+		case 'S':
+			silent_flag = 1L;
 			break;
 		case '?':
 			print_usage();
@@ -118,7 +123,7 @@ main(int argc, char **argv)
 	 * 
 	 */
 
-	curl_easy_setopt(easy_handle,CURLOPT_NOPROGRESS,0L);
+	curl_easy_setopt(easy_handle,CURLOPT_NOPROGRESS,silent_flag);
 	curl_easy_setopt(easy_handle,CURLOPT_HTTPPOST,post);
 
 	curl_easy_perform(easy_handle);
