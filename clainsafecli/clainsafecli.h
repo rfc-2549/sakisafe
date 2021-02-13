@@ -12,3 +12,11 @@ store_link(const char *path, const char *buf);
 
 void
 print_help();
+
+void
+progress(void *clientp,
+	double dltotal,
+	double dlnow,
+	double ultotal,
+	double ulnow);
+

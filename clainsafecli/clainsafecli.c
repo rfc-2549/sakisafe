@@ -124,10 +124,12 @@ main(int argc, char **argv)
 	 */
 
 	curl_easy_setopt(easy_handle,CURLOPT_NOPROGRESS,silent_flag);
+	curl_easy_setopt(easy_handle,CURLOPT_PROGRESSFUNCTION,progress);
+
 	curl_easy_setopt(easy_handle,CURLOPT_HTTPPOST,post);
 
 	curl_easy_perform(easy_handle);
-
+	if(!silent_flag) puts("");
 	puts(buffer);
 
 	curl_formfree(post);
@@ -178,4 +180,18 @@ print_help()
 		"--tor: uses tor",
 		"--help: print this message\n");
 	return;
+}
+
+void
+progress(void *clientp,
+	double dltotal,
+	double dlnow,
+	double ultotal,
+	double ulnow)
+{
+	printf("\r%0.f uploaded of %0.f (%0.f%%)",ulnow,ultotal,
+		ulnow*100/ultotal);
+	fflush(stdout);
+	
+
 }
