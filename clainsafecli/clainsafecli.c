@@ -18,6 +18,9 @@ main(int argc, char **argv)
 
 	int tor_flag, i2p_flag;
 	tor_flag = i2p_flag = 0;
+	int ipv6_flag, ipv4_flag;
+	ipv6_flag = ipv4_flag = 0;
+		
 	long silent_flag = 0L;
 	char *buffer = (char *)calloc(1024,sizeof(char));
 	if(buffer == NULL) {
@@ -42,12 +45,14 @@ main(int argc, char **argv)
 		{"tor"   ,no_argument      ,0,'t'},
 		{"i2p"   ,no_argument      ,0,'i'},
 		{"silent",no_argument      ,0,'S'},
+		{"ipv4"  ,no_argument      ,0,'4'},
+		{"ipv6"  ,no_argument      ,0,'6'},
 		{0       ,0                ,0, 0 }
 
 	};
 
 	int c = 0;
-	while((c = getopt_long(argc,argv, "htiSs:",
+	while((c = getopt_long(argc,argv, "46htiSs:",
 				long_options,&option_index)) != -1) {
 		switch(c) {
 		case 's':
@@ -65,6 +70,12 @@ main(int argc, char **argv)
 			break;
 		case 'S':
 			silent_flag = 1L;
+			break;
+		case '4':
+			ipv4_flag = 1;
+			break;
+		case '6':
+			ipv6_flag = 1;
 			break;
 		case '?':
 			print_usage();
@@ -103,16 +114,28 @@ main(int argc, char **argv)
 			CURLPROXY_HTTP);
 	}
 
+	/* Which address to use */
+	
+	if(ipv6_flag)
+		curl_easy_setopt(easy_handle,CURLOPT_IPRESOLVE,
+			CURL_IPRESOLVE_V6);
+	else if(ipv4_flag)
+		curl_easy_setopt(easy_handle,CURLOPT_IPRESOLVE,
+			CURL_IPRESOLVE_V4);
+	else
+		curl_easy_setopt(easy_handle,CURLOPT_IPRESOLVE,
+			CURL_IPRESOLVE_WHATEVER);
+	
 	/* Form parameters */
 
 	/* File name */
 	curl_formadd(&post,&last,
-		CURLFORM_COPYNAME, "file",
+		CURLFORM_COPYNAME,"file",
 		CURLFORM_FILE,argv[optind],
 		CURLFORM_END);
 	/* Actual file content */
 	curl_formadd(&post,&last,
-		CURLFORM_COPYNAME, "file",
+		CURLFORM_COPYNAME,"file",
 		CURLFORM_COPYCONTENTS,argv[optind],
 		CURLFORM_END);
 
