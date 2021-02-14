@@ -5,7 +5,7 @@
 #include <getopt.h>
 #include <errno.h>
 #include <curl/curl.h>
-#include <math.h>
+#include <stdbool.h>
 
 #include "options.h"
 #include "clainsafecli.h"
@@ -16,10 +16,10 @@ main(int argc, char **argv)
 	struct curl_httppost *post = NULL;
 	struct curl_httppost *last = NULL;
 
-	int tor_flag, i2p_flag;
-	tor_flag = i2p_flag = 0;
-	int ipv6_flag, ipv4_flag;
-	ipv6_flag = ipv4_flag = 0;
+	bool tor_flag, i2p_flag;
+	tor_flag = i2p_flag = false;
+	bool ipv6_flag, ipv4_flag;
+	ipv6_flag = ipv4_flag = false;
 		
 	long silent_flag = 0L;
 	char *buffer = (char *)calloc(1024,sizeof(char));
@@ -63,19 +63,19 @@ main(int argc, char **argv)
 			return 0;
 			break;
 		case 't':
-			tor_flag = 1;
+			tor_flag = true;
 			break;
 		case 'i':
-			i2p_flag = 1;
+			i2p_flag = true;
 			break;
 		case 'S':
-			silent_flag = 1L;
+			silent_flag = true;
 			break;
 		case '4':
-			ipv4_flag = 1;
+			ipv4_flag = true;
 			break;
 		case '6':
-			ipv6_flag = 1;
+			ipv6_flag = true;
 			break;
 		case '?':
 			print_usage();
