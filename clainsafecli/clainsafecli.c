@@ -1,11 +1,11 @@
 #include <stdio.h>
-#include <unistd.h>
 #include <string.h>
 #include <stdlib.h>
-#include <getopt.h>
-#include <errno.h>
-#include <curl/curl.h>
 #include <stdbool.h>
+#include <errno.h>
+#include <getopt.h>
+#include <unistd.h>
+#include <curl/curl.h>
 
 #include "options.h"
 #include "clainsafecli.h"
@@ -53,7 +53,7 @@ main(int argc, char **argv)
 
 	int c = 0;
 	while((c = getopt_long(argc,argv, "46htiSs:",
-				long_options,&option_index)) != -1) {
+					   long_options,&option_index)) != -1) {
 		switch(c) {
 		case 's':
 			server = optarg;
@@ -107,37 +107,42 @@ main(int argc, char **argv)
 	} else if(tor_flag) {
 		curl_easy_setopt(easy_handle,CURLOPT_PROXY,tor_proxy_url);
 		curl_easy_setopt(easy_handle,CURLOPT_PROXYTYPE,
-			CURLPROXY_SOCKS5_HOSTNAME);
+					  CURLPROXY_SOCKS5_HOSTNAME);
 	} else if(i2p_flag) {
 		curl_easy_setopt(easy_handle,CURLOPT_PROXY,i2p_proxy_url);
 		curl_easy_setopt(easy_handle,CURLOPT_PROXYTYPE,
-			CURLPROXY_HTTP);
+					  CURLPROXY_HTTP);
 	}
 
 	/* Which address to use */
 	
 	if(ipv6_flag)
 		curl_easy_setopt(easy_handle,CURLOPT_IPRESOLVE,
-			CURL_IPRESOLVE_V6);
+					  CURL_IPRESOLVE_V6);
 	else if(ipv4_flag)
 		curl_easy_setopt(easy_handle,CURLOPT_IPRESOLVE,
-			CURL_IPRESOLVE_V4);
+					  CURL_IPRESOLVE_V4);
 	else
 		curl_easy_setopt(easy_handle,CURLOPT_IPRESOLVE,
-			CURL_IPRESOLVE_WHATEVER);
+					  CURL_IPRESOLVE_WHATEVER);
 	
 	/* Form parameters */
 
 	/* File name */
+
+	/* TODO: make it iterate on args so you can upload multiple files
+	 *  at once (clainsafecli file1 file2 ... filen)
+	 */
+	
 	curl_formadd(&post,&last,
-		CURLFORM_COPYNAME,"file",
-		CURLFORM_FILE,argv[optind],
-		CURLFORM_END);
+			   CURLFORM_COPYNAME,"file",
+			   CURLFORM_FILE,argv[optind],
+			   CURLFORM_END);
 	/* Actual file content */
 	curl_formadd(&post,&last,
-		CURLFORM_COPYNAME,"file",
-		CURLFORM_COPYCONTENTS,argv[optind],
-		CURLFORM_END);
+			   CURLFORM_COPYNAME,"file",
+			   CURLFORM_COPYCONTENTS,argv[optind],
+			   CURLFORM_END);
 
 	/* Progress bar
 	 * 
@@ -153,6 +158,7 @@ main(int argc, char **argv)
 
 	curl_easy_perform(easy_handle);
 	if(!silent_flag) puts("");
+
 	puts(buffer);
 
 	curl_formfree(post);
@@ -168,8 +174,9 @@ main(int argc, char **argv)
 	return 0;
 }
 
-size_t static write_data(void *buffer, size_t size, size_t nmemb,
-	void *userp)
+static size_t
+write_data(void *buffer, size_t size, size_t nmemb,
+		 void *userp)
 {
 	memcpy(userp, buffer, nmemb*size);
 	return 0;
@@ -178,7 +185,7 @@ size_t static write_data(void *buffer, size_t size, size_t nmemb,
 void
 print_usage()
 {
-	printf("USAGE: clainsafecli [--tor|--i2p] [--server] file\n");
+	printf("USAGE: clainsafecli [--tor|--i2p] [-6|-4] [--server] file\n");
 	return;
 }
 
@@ -188,7 +195,7 @@ store_link(const char *path, const char *buf)
 	FILE *fp = fopen(path,"a+");
 	if(fp == NULL) {
 		fprintf(stderr,"Error opening file %i: %s\n",errno,
-			strerror(errno));
+			   strerror(errno));
 		return -1;
 	}
 	fwrite(buf,strlen(buf),1,fp);
@@ -199,21 +206,28 @@ store_link(const char *path, const char *buf)
 void
 print_help()
 {
-	printf("--server <server>: specifies the lainsafe server\n%s\n%s",
-		"--tor: uses tor",
-		"--help: print this message\n");
+	printf("--server <server>: specifies the lainsafe server\n%s\n%s\n%s\n%s\n%s\%s",
+		  "--tor: uses tor.",
+		  "--i2p: uses i2p.",
+		  "-6|--ipv6: uses IPv6 only.",
+		  "-4|--ipv6: uses IPv4 only.",
+		  "--silent: doesn't print progress.",
+		  "--help: print this message.\n");
 	return;
 }
 
 void
 progress(void *clientp,
-	double dltotal,
-	double dlnow,
-	double ultotal,
-	double ulnow)
+	    double dltotal,
+	    double dlnow,
+	    double ultotal,
+	    double ulnow)
 {
+	clientp = NULL;
+	dltotal = 0;
+	dlnow   = 0;
 	printf("\r%0.f uploaded of %0.f (%0.f%%)",ulnow,ultotal,
-		ulnow*100/ultotal);
+		  ulnow*100/ultotal);
 	fflush(stdout);
 	
 
