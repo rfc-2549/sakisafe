@@ -1,7 +1,7 @@
 #include <stdlib.h>
 
 size_t
-static write_data(void *buffer, size_t size, size_t nmemb,
+write_data(void *buffer, size_t size, size_t nmemb,
 	void *userp);
 
 void

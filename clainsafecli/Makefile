@@ -3,7 +3,7 @@
 TARGET = clainsafecli
 OBJS   = clainsafecli.o
 CC     = cc
-CFLAGS = -MD -Wall -Wextra -O2 -march=native -lcurl
+CFLAGS = -MD -std=c11 -Wall -Wextra -O2 -march=native -lcurl
 
 $(TARGET): clainsafecli.o
 	$(CC) $(CFLAGS) $(OBJS) -o $(TARGET)
