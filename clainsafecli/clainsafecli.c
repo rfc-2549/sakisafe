@@ -217,8 +217,7 @@ progress(void *clientp,
 	double ulnow)
 {
 	/* So I don't get a warning */
-     clientp++;
-	dltotal += 1;
+     dltotal += 1;
 	dlnow   += 1;
 	printf("\r%0.f uploaded of %0.f (%0.f%%)",ulnow,ultotal,
 		ulnow*100/ultotal);
