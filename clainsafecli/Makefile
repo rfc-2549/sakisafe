@@ -3,13 +3,15 @@
 TARGET = clainsafecli
 OBJS   = clainsafecli.o
 CC     = cc
-CFLAGS = -MD -std=c11 -Wall -Wextra -O2 -march=native -lcurl
+CFLAGSDEF = -MD -std=c11 -Wall -Wextra -O2 -march=native -lcurl
+CFLAGS = -O2 -march=native
+
 
 $(TARGET): clainsafecli.o
-	$(CC) $(CFLAGS) $(OBJS) -o $(TARGET)
+	$(CC) $(CFLAGS) $(CFLAGSDEF) $(OBJS) -o $(TARGET)
 
 %.o: %.c
-	$(CC) -c $(CFLAGS) $< -o $@
+	$(CC) -c $(CFLAGS) $(CFLAGSDEF) $< -o $@
 
 -include *.d
 

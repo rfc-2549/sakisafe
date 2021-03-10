@@ -27,6 +27,7 @@ main(int argc, char **argv)
 		fprintf(stderr,"Error allocating memory!\n");
 		return -1;
 	}
+	
 	CURL *easy_handle = curl_easy_init();
 
 	if(!easy_handle) {
