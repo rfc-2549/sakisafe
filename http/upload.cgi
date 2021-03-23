@@ -77,7 +77,7 @@ if ($allowed_extension) {
   }
   
   close FILE;
-
+  $filename =~ s/ /%20/g;
   print $prot. "://" . $ENV{HTTP_HOST} . "/$upload_dir$dirname/$filename";
 } else {
   print "The file extension .$extension is not allowed in this instance.";
