@@ -134,27 +134,27 @@ main(int argc, char **argv)
 	/* TODO: make it iterate on args so you can upload multiple files
 	 *  at once (clainsafecli file1 file2 ... filen)
 	 */
-	
-	curl_formadd(&post,&last,
-		CURLFORM_COPYNAME,"file",
-		CURLFORM_FILE,argv[optind],
-		CURLFORM_END);
-	/* Actual file content */
-	curl_formadd(&post,&last,
-		CURLFORM_COPYNAME,"file",
-		CURLFORM_COPYCONTENTS,argv[optind],
-		CURLFORM_END);
+	for(int i = optind; i<argc; i++) {
+		curl_formadd(&post,&last,
+			CURLFORM_COPYNAME,"file",
+			CURLFORM_FILE,argv[i],
+			CURLFORM_END);
+		/* Actual file content */
+		curl_formadd(&post,&last,
+			CURLFORM_COPYNAME,"file",
+			CURLFORM_COPYCONTENTS,argv[i],
+			CURLFORM_END);
 
-	curl_easy_setopt(easy_handle,CURLOPT_NOPROGRESS,silent_flag);
-	curl_easy_setopt(easy_handle,CURLOPT_PROGRESSFUNCTION,progress);
+		curl_easy_setopt(easy_handle,CURLOPT_NOPROGRESS,silent_flag);
+		curl_easy_setopt(easy_handle,CURLOPT_PROGRESSFUNCTION,progress);
 
-	curl_easy_setopt(easy_handle,CURLOPT_HTTPPOST,post);
+		curl_easy_setopt(easy_handle,CURLOPT_HTTPPOST,post);
 
-	curl_easy_perform(easy_handle);
-	if(!silent_flag) puts("");
+		curl_easy_perform(easy_handle);
+		if(!silent_flag) puts("");
 
-	puts(buffer);
-
+		puts(buffer);
+	}
 	curl_formfree(post);
 	curl_easy_cleanup(easy_handle);
 
@@ -168,59 +168,3 @@ main(int argc, char **argv)
 	return 0;
 }
 
-size_t
-write_data(void *buffer, size_t size, size_t nmemb,
-	void *userp)
-{
-	memcpy(userp, buffer, nmemb*size);
-	return 0;
-}
-
-void
-print_usage()
-{
-	printf("USAGE: clainsafecli [--tor|--i2p] [-6|-4] [--server] file\n");
-	return;
-}
-
-int
-store_link(const char *path, const char *buf)
-{
-	FILE *fp = fopen(path,"a+");
-	if(fp == NULL) {
-		fprintf(stderr,"Error opening file %i: %s\n",errno,
-			strerror(errno));
-		return -1;
-	}
-	fwrite(buf,strlen(buf),1,fp);
-	fputc('\n',fp);
-	return 0;
-}
-
-void
-print_help()
-{
-	printf("--server <server>: specifies the lainsafe server\n%s\n%s\n%s\n%s\n%s\%s",
-		"--tor: uses tor.",
-		"--i2p: uses i2p.",
-		"-6|--ipv6: uses IPv6 only.",
-		"-4|--ipv6: uses IPv4 only.",
-		"--silent: doesn't print progress.",
-		"--help: print this message.\n");
-	return;
-}
-
-void
-progress(void *clientp,
-	double dltotal,
-	double dlnow,
-	double ultotal,
-	double ulnow)
-{
-	/* So I don't get a warning */
-     dltotal += 1;
-	dlnow   += 1;
-	printf("\r%0.f uploaded of %0.f (%0.f%%)",ulnow,ultotal,
-		ulnow*100/ultotal);
-	fflush(stdout);
-}
