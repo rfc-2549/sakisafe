@@ -1,13 +1,13 @@
 # clainsafecli makefile
 
 TARGET = clainsafecli
-OBJS   = clainsafecli.o
+OBJS   = clainsafecli.o funcs.o
 CC     = cc
-CFLAGSDEF = -MD -std=c11 -Wall -Wextra -O2 -march=native -lcurl
+CFLAGSDEF = -MD -std=c11 -Wall -Wextra -lcurl
 CFLAGS = -O2 -march=native
 
 
-$(TARGET): clainsafecli.o
+$(TARGET): $(OBJS)
 	$(CC) $(CFLAGS) $(CFLAGSDEF) $(OBJS) -o $(TARGET)
 
 %.o: %.c
