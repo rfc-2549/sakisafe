@@ -35,7 +35,8 @@ store_link(const char *path, const char *buf)
 void
 print_help()
 {
-	printf("--server <server>: specifies the lainsafe server\n%s\n%s\n%s\n%s\n%s\n%s",
+	printf("--server <server>: specifies the lainsafe server\n%s\n%s\n%s\n%s\n%s\n%s\n%s",
+		"-t|--token: Authentication token (https://u.kalli.st)",
 		"--tor: uses tor.",
 		"--i2p: uses i2p.",
 		"-6|--ipv6: uses IPv6 only.",
@@ -55,8 +56,9 @@ progress(void *clientp,
 	/* So I don't get a warning */
      dltotal += 1;
 	dlnow   += 1;
-	printf("\r%0.f uploaded of %0.f (%0.f%%)",ulnow,ultotal,
+	printf("\r%0.f uploaded of %0.f (\E[32;1m%0.f%%\E[30;0m)",ulnow,ultotal,
 		ulnow*100/ultotal);
 	fflush(stdout);
+	
 }
 

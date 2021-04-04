@@ -20,7 +20,7 @@ main(int argc, char **argv)
 	tor_flag = i2p_flag = false;
 	bool ipv6_flag, ipv4_flag;
 	ipv6_flag = ipv4_flag = false;
-		
+	char *token = NULL;
 	long silent_flag = 0L;
 	char *buffer = (char *)calloc(1024,sizeof(char));
 	if(buffer == NULL) {
@@ -44,6 +44,7 @@ main(int argc, char **argv)
 		{"server",required_argument,0,'s'},
 		{"help"  ,no_argument      ,0,'h'},
 		{"tor"   ,no_argument      ,0,'t'},
+		{"token" ,required_argument,0,'T'},
 		{"i2p"   ,no_argument      ,0,'i'},
 		{"silent",no_argument      ,0,'S'},
 		{"ipv4"  ,no_argument      ,0,'4'},
@@ -53,7 +54,7 @@ main(int argc, char **argv)
 	};
 
 	int c = 0;
-	while((c = getopt_long(argc,argv, "46htiSs:",
+	while((c = getopt_long(argc,argv, "46hT:tiSs:",
 				long_options,&option_index)) != -1) {
 		switch(c) {
 		case 's':
@@ -71,6 +72,9 @@ main(int argc, char **argv)
 			break;
 		case 'S':
 			silent_flag = true;
+			break;
+		case 'T':
+			token = optarg;
 			break;
 		case '4':
 			ipv4_flag = true;
@@ -144,6 +148,11 @@ main(int argc, char **argv)
 			CURLFORM_COPYNAME,"file",
 			CURLFORM_COPYCONTENTS,argv[i],
 			CURLFORM_END);
+		if(token)
+			curl_formadd(&post,&last,
+				CURLFORM_COPYNAME,"token",
+				CURLFORM_COPYCONTENTS,token,
+				CURLFORM_END);
 
 		curl_easy_setopt(easy_handle,CURLOPT_NOPROGRESS,silent_flag);
 		curl_easy_setopt(easy_handle,CURLOPT_PROGRESSFUNCTION,progress);
