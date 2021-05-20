@@ -14,7 +14,7 @@ write_data(void *buffer, size_t size, size_t nmemb,
 void
 print_usage()
 {
-	printf("USAGE: clainsafecli [--tor|--i2p] [-6|-4] [--server] file\n");
+	printf("USAGE: clainsafecli [--socks-proxy=socks_address|--http_proxy=proxy_address] [-6|-4] [--server] file\n");
 	return;
 }
 

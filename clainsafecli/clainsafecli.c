@@ -16,13 +16,17 @@ main(int argc, char **argv)
 	struct curl_httppost *post = NULL;
 	struct curl_httppost *last = NULL;
 
-	bool tor_flag, i2p_flag;
-	tor_flag = i2p_flag = false;
+	bool socks_proxy_flag, http_proxy_flag;
+	socks_proxy_flag = http_proxy_flag = false;
 	bool ipv6_flag, ipv4_flag;
 	ipv6_flag = ipv4_flag = false;
 	char *token = NULL;
 	long silent_flag = 0L;
 	char *buffer = (char *)calloc(1024,sizeof(char));
+
+
+	char *socks_proxy_url, *http_proxy_url;
+	
 	if(buffer == NULL) {
 		fprintf(stderr,"Error allocating memory!\n");
 		return -1;
@@ -41,20 +45,20 @@ main(int argc, char **argv)
 
 	int option_index = 0;
 	static struct option long_options[] = {
-		{"server",required_argument,0,'s'},
-		{"help"  ,no_argument      ,0,'h'},
-		{"tor"   ,no_argument      ,0,'t'},
-		{"token" ,required_argument,0,'T'},
-		{"i2p"   ,no_argument      ,0,'i'},
-		{"silent",no_argument      ,0,'S'},
-		{"ipv4"  ,no_argument      ,0,'4'},
-		{"ipv6"  ,no_argument      ,0,'6'},
-		{0       ,0                ,0, 0 }
+		{"server",             required_argument,0,'s'},
+		{"help"  ,             no_argument      ,0,'h'},
+		{"socks-proxy",        required_argument,0,'p'},
+		{"token" ,             required_argument,0,'T'},
+		{"http-proxy",         no_argument      ,0,'P'},
+		{"silent",             no_argument      ,0,'S'},
+		{"ipv4"  ,             no_argument      ,0,'4'},
+		{"ipv6"  ,             no_argument      ,0,'6'},
+   		{0       ,             0                ,0, 0 }
 
 	};
 
 	int c = 0;
-	while((c = getopt_long(argc,argv, "46hT:tiSs:",
+	while((c = getopt_long(argc,argv, "46hT:p:P:Ss:",
 				long_options,&option_index)) != -1) {
 		switch(c) {
 		case 's':
@@ -64,11 +68,13 @@ main(int argc, char **argv)
 			print_help();
 			return 0;
 			break;
-		case 't':
-			tor_flag = true;
+		case 'p':
+			socks_proxy_url = optarg;
+			socks_proxy_flag = true;
 			break;
-		case 'i':
-			i2p_flag = true;
+		case 'P':
+			http_proxy_url = optarg;
+			http_proxy_flag = true;
 			break;
 		case 'S':
 			silent_flag = true;
@@ -106,15 +112,15 @@ main(int argc, char **argv)
 
 	/* Proxy options */
 
-	if(tor_flag && i2p_flag) {
-		fprintf(stderr,"Tor and I2P can't be used at once\n");
+	if(socks_proxy_flag && http_proxy_flag) {
+		fprintf(stderr,"Socks_Proxy and HTTP_PROXY can't be used at once\n");
 		return -1;
-	} else if(tor_flag) {
-		curl_easy_setopt(easy_handle,CURLOPT_PROXY,tor_proxy_url);
+	} else if(socks_proxy_flag) {
+		curl_easy_setopt(easy_handle,CURLOPT_PROXY,socks_proxy_url);
 		curl_easy_setopt(easy_handle,CURLOPT_PROXYTYPE,
 			CURLPROXY_SOCKS5_HOSTNAME);
-	} else if(i2p_flag) {
-		curl_easy_setopt(easy_handle,CURLOPT_PROXY,i2p_proxy_url);
+	} else if(http_proxy_flag) {
+		curl_easy_setopt(easy_handle,CURLOPT_PROXY,http_proxy_url);
 		curl_easy_setopt(easy_handle,CURLOPT_PROXYTYPE,
 			CURLPROXY_HTTP);
 	}
