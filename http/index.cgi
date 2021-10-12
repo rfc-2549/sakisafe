@@ -40,10 +40,9 @@ print "<!DOCTYPE html>
       <input type='file' name='file' size='30'>
       <input type='submit' value='upload'>
     </form>
-    <a href='https://codeberg.org/qorg11/lainsafe'>star me</a>
+    <a href='https://github.com/dimethyltriptamine/lainsafe'>star me</a>
    <h2>Terminal usage</h2>
-   <p>I recommend using lainsafecli to upload files to lainsafe, however, there is more than one way to do it.</p>
+   <p>I recommend using clainsafecli to upload files to lainsafe, however, there is more than one way to do it.</p>
    <code>curl -F 'file=@1605388889.png' $ENV{HTTP_HOST}$ENV{REQUEST_URI}</code><br/>
-print $disk_free . available from . $disk_size . total;
   </body>
     </html>";
