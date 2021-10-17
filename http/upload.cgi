@@ -74,7 +74,9 @@ if ($filename) {
 		}
 
 	}
-
+	if($filename eq "-") {
+		$filename .= ".txt"; # for pastes
+	}
 	if ($allowed_extension) {
 
 		open(FILE,">$upload_dir/$dirname/$filename");
