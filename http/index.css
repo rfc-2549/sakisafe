@@ -1,0 +1,38 @@
+p {
+    color: white;
+    display: block;
+}
+
+/* p code {display: block;} */
+
+code {
+    background: #4e4e4e;
+    font-family: monospace;
+    color: #e3e3e3;
+    margin: 30px;
+}
+
+body, input, select, textarea {
+	color: #333;
+	font-size: 10pt;
+	line-height: 1.65em;
+	letter-spacing: -0.015em;
+}
+
+body {
+    background:#040304;
+}
+
+h1, h2 {
+    color: #e3e3e3;
+}
+.left {
+    position: absolute;
+    top: 0;
+    right: 30px;
+    border-left-color: #333;
+    border-left-width: 2px;
+    border-left-style: solid;
+    padding: 10px;
+    
+}

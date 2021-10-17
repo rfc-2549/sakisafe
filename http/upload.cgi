@@ -16,7 +16,7 @@
 
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);
-use Time::HiRes qw(gettimeofday);
+
 my $q = CGI->new;
 
 my $filename = $q->param('file');
@@ -74,8 +74,8 @@ if ($filename) {
 		}
 
 	}
-	if($filename eq "-") {
-		$filename .= ".txt"; # for pastes
+	if ($filename eq "-") {
+		$filename .= ".txt";  # for pastes
 	}
 	if ($allowed_extension) {
 
@@ -88,7 +88,7 @@ if ($filename) {
   
 		close FILE;
 		$filename =~ s/ /%20/g;
-		print $prot. "://" . $ENV{HTTP_HOST} . "/$upload_dir$dirname/$filename";
+		print $prot. "://" . $ENV{HTTP_HOST} . "/$upload_dir$dirname/$filename" . "\n";
 	} else {
 		print "The file extension .$extension is not allowed in this instance.";
 	}
