@@ -1,4 +1,4 @@
-#!/usr/local/bin/perl
+#!/usr/bin/perl
 # This file is part of lainsafe.
 
 # lainsafe is free software: you can redistribute it and/or modify
