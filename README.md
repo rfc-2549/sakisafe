@@ -12,7 +12,7 @@
 ## Installation:
 
 1. Configure your webserver to run CGI
-2. If running nginx, set ```client_max_body_size``` to the max size of
+2. If running nginx, set `client_max_body_size` to the max size of
    the file
 2. There you go.
 
@@ -31,14 +31,6 @@ filesharing services)
 `clainsafecli --server=http://server <file>`
 
 (for more info see -h)
-
-# Automatically removing files
-
-Try [lsd](https://git.kalli.st/czar/lsd) (lainsafe daemon)
-
-usage: `lsd <path> days`
-
-lsd wont work with versions before 8a557ca
 
 # Donate
 
