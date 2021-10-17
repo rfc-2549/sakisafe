@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/local/bin/perl
 # This file is part of lainsafe.
 
 # lainsafe is free software: you can redistribute it and/or modify
@@ -16,14 +16,13 @@
 
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);
-
+use Time::HiRes qw(gettimeofday);
 my $q = CGI->new;
 
 my $filename = $q->param('file');
 my $url = $q->param('url');
 
 my $upload_dir = "files/";
-print $q->header();
 
 $size    = $ENV{CONTENT_LENGTH};
 
@@ -33,6 +32,8 @@ our $MAX_SIZE = 1024*1024*100;		    # Change for your size
 our $MAX_SIZE_MB = $MAX_SIZE / 1024 / 1024; # Don't change this
 
 our @not_allowed_extensions = qw(sh out exe);
+
+print $q->header();
 
 # do something better
 if ($url ne "") {
@@ -74,8 +75,8 @@ if ($filename) {
 		}
 
 	}
-	if ($filename eq "-") {
-		$filename .= ".txt";  # for pastes
+	if($filename eq "-") {
+		$filename .= ".txt"; # for pastes
 	}
 	if ($allowed_extension) {
 
@@ -88,6 +89,7 @@ if ($filename) {
   
 		close FILE;
 		$filename =~ s/ /%20/g;
+
 		print $prot. "://" . $ENV{HTTP_HOST} . "/$upload_dir$dirname/$filename" . "\n";
 	} else {
 		print "The file extension .$extension is not allowed in this instance.";
@@ -95,13 +97,14 @@ if ($filename) {
 	exit;
 } elsif ($url != "" && !$filename) {
    url_shorter:
-	my $template = "<meta http-equiv='Refresh' content='0; url='$url'/>";
-	
-	my @chars = ("A"..."z","a"..."z");
+	my $template = "<meta http-equiv=\"Refresh\" content=\"0; url='$url'\"/>";
+	my @chars = ("A"..."z","a"..."z",1..9);
 	my $dirname;
-	$dirname .= $chars[rand @chars] for 1..8;
+	$dirname .= $chars[rand @chars] for 1..4;
 	mkdir($dirname);
 	open(my $fh, ">$dirname/index.html");
 	print $fh $template;
+	my $prot = length $ENV{HTTPS} ? "https" : "http";
+	print $prot. "://" . $ENV{HTTP_HOST} . "/$dirname" . "\n";
 	exit;
 }
