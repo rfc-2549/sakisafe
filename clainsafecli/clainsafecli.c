@@ -175,7 +175,7 @@ main(int argc, char **argv)
 		if(!silent_flag)
 			putchar('\n');
 
-		puts(buffer);
+		printf("%s",buffer);
 	}
 	curl_formfree(post);
 	curl_easy_cleanup(easy_handle);
