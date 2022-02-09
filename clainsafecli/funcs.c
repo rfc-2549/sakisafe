@@ -29,6 +29,7 @@ store_link(const char *path, const char *buf)
 	}
 	fwrite(buf,strlen(buf),1,fp);
 	fputc('\n',fp);
+	fclose(fp);
 	return 0;
 }
 

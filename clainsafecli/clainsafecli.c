@@ -39,6 +39,8 @@ main(int argc, char **argv)
 	}
 	if(argc == optind) {
 		print_usage();
+		free(buffer);
+		curl_easy_cleanup(easy_handle);
 		return -1;
 	}
 
@@ -66,6 +68,8 @@ main(int argc, char **argv)
 				break;
 			case 'h':
 				print_help();
+				free(buffer);
+				curl_easy_cleanup(easy_handle);
 				return 0;
 				break;
 			case 'p':
@@ -175,7 +179,7 @@ main(int argc, char **argv)
 		if(!silent_flag)
 			putchar('\n');
 
-		printf("%s",buffer);
+		printf("%s", buffer);
 	}
 	curl_formfree(post);
 	curl_easy_cleanup(easy_handle);
