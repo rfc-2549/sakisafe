@@ -1,3 +1,4 @@
+#pragma once
 /* clainsafecli options */
 
 /* Default server you'll upload files to */

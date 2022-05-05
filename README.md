@@ -1,5 +1,6 @@
-# Lainsafe
-### simple file upload.
+# Sakisafe (formerly lainsafe)
+
+## Simple file upload
 
 ## Features
 
@@ -16,19 +17,15 @@
    the file
 2. There you go.
 
-For more detailed information, look at the
-[manpage](https://codeberg.org/qorg11/lainsafe/src/branch/master/doc/lainsafe.md)
 
+# sakisafecli
 
-
-# clainsafecli
-
-`clainsafecli` is the command line interface for lainsafe (and other
+`sakisafecli` is the command line interface for sakisafe (and other
 filesharing services)
 
 ## usage
 
-`clainsafecli --server=http://server <file>`
+`sakisafecli --server=http://server <file>`
 
 (for more info see -h)
 

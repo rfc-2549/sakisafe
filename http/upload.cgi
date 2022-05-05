@@ -1,22 +1,22 @@
 #!/usr/bin/perl
-# This file is part of lainsafe.
+# This file is part of sakisafe.
 
-# lainsafe is free software: you can redistribute it and/or modify
+# sakisafe is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation, either version 3 of the License, or
 # (at your option) any later version.
 
-# lainsafe is distributed in the hope that it will be useful,
+# sakisafe is distributed in the hope that it will be useful,
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 # GNU General Public License for more details.
 
 # You should have received a copy of the GNU General Public License
-# along with lainsafe.  If not, see <https://www.gnu.org/licenses/>.
+# along with sakisafe.  If not, see <https://www.gnu.org/licenses/>.
 
 use CGI;
 use CGI::Carp qw(fatalsToBrowser);
-use Time::HiRes qw(gettimeofday);
+
 my $q = CGI->new;
 
 my $filename = $q->param('file');
@@ -75,18 +75,16 @@ if ($filename) {
 		}
 
 	}
-	if($filename eq "-") {
-		$filename .= ".txt"; # for pastes
+	if ($filename eq "-") {
+		$filename .= ".txt";  # for pastes
 	}
 	if ($allowed_extension) {
 
 		open(FILE,">$upload_dir/$dirname/$filename");
 		binmode(FILE);
-  
 		while (<$upload_filehandle>) {
 			print FILE;
 		}
-  
 		close FILE;
 		$filename =~ s/ /%20/g;
 

@@ -8,7 +8,7 @@
 #include <curl/curl.h>
 
 #include "options.h"
-#include "clainsafecli.h"
+#include "sakisafecli.h"
 
 int
 main(int argc, char **argv)
@@ -142,7 +142,7 @@ main(int argc, char **argv)
 	/* File name */
 
 	/* TODO: make it iterate on args so you can upload multiple files
-	 *  at once (clainsafecli file1 file2 ... filen)
+	 *  at once (sakisafecli file1 file2 ... filen)
 	 */
 	for(int i = optind; i < argc; i++) {
 		curl_formadd(&post,

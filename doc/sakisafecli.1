@@ -1,19 +1,19 @@
 .\"Manpage for lainsafe
-.TH clainsafecli 1
+.TH sakisafecli 1
 .SH NAME
-clainsafecli \- File uploader
+sakisafecli \- File uploader
 
 .SH DESCRIPTION
 
-clainsafecli is a file uploader. Intended for lainsafe, but also works
+sakisafecli is a file uploader. Intended for lainsafe, but also works
 for 0x0.st, i.kalli.st and probably others.
 
 .SH INSTALLATION
 .in +4n
 .EX
 make
-(or gcc clainsafecli.c -lcurl -o clainsafecli)
-cp clainsafecli ~/.local/bin
+(or gcc sakisafecli.c -lcurl -o sakisafecli)
+cp sakisafecli ~/.local/bin
 .EE
 .SH OPTIONS
 
@@ -47,5 +47,5 @@ Forces curl to use IPv4 only.
 
 .B
 --silent or -S
-tells clainsafecli to be silent. This means, it won't
+tells sakisafecli to be silent. This means, it won't
 print the progress.

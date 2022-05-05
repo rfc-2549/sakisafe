@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
-#include "clainsafecli.h"
+#include "sakisafecli.h"
 
 size_t
 write_data(void *buffer, size_t size, size_t nmemb,
@@ -14,7 +14,7 @@ write_data(void *buffer, size_t size, size_t nmemb,
 void
 print_usage()
 {
-	printf("USAGE: clainsafecli [--socks-proxy=socks_address|--http_proxy=proxy_address] [-6|-4] [--server] file\n");
+	printf("USAGE: sakisafecli [--socks-proxy=socks_address|--http_proxy=proxy_address] [-6|-4] [--server] file\n");
 	return;
 }
 
@@ -36,7 +36,7 @@ store_link(const char *path, const char *buf)
 void
 print_help()
 {
-	printf("--server <server>: specifies the lainsafe server\n%s\n%s\n%s\n%s\n%s\n%s\n%s",
+	printf("--server <server>: specifies the sakisafe server\n%s\n%s\n%s\n%s\n%s\n%s\n%s",
 		"-t|--token: Authentication token (https://u.kalli.st)",
 		"--tor: uses tor.",
 		"--i2p: uses i2p.",

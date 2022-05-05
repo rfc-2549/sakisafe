@@ -1,7 +1,7 @@
-# clainsafecli makefile
+# sakisafecli makefile
 
-TARGET = clainsafecli
-OBJS   = clainsafecli.o funcs.o
+TARGET = sakisafecli
+OBJS   = sakisafecli.o funcs.o
 CC     = cc
 CFLAGSDEF = -MD -std=c11 -Wall -Wextra -lcurl
 CFLAGS = -O2 -march=native
@@ -17,4 +17,4 @@ $(TARGET): $(OBJS)
 
 .PHONY: clean
 clean:
-	rm -f *.d *.o clainsafecli
+	rm -f *.d *.o sakisafecli
