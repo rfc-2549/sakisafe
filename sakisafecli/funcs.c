@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
+#include <libconfig.h>
 #include "sakisafecli.h"
 
 size_t
@@ -62,4 +63,3 @@ progress(void *clientp,
 	fflush(stdout);
 	
 }
-

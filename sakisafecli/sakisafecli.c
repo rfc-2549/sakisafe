@@ -1,3 +1,4 @@
+#include <libconfig.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -10,25 +11,41 @@
 #include "options.h"
 #include "sakisafecli.h"
 
+/* Config variables */
+char *socks_proxy_url, *http_proxy_url;
+
+bool socks_proxy_flag = false, http_proxy_flag = false;
+bool ipv6_flag = false, ipv4_flag = false;
+bool silent_flag = false;
+config_t runtime_config;
+
 int
 main(int argc, char **argv)
 {
 	struct curl_httppost *post = NULL;
 	struct curl_httppost *last = NULL;
 
-	bool socks_proxy_flag, http_proxy_flag;
-	socks_proxy_flag = http_proxy_flag = false;
-	bool ipv6_flag, ipv4_flag;
-	ipv6_flag = ipv4_flag = false;
 	char *token = NULL;
-	long silent_flag = 0L;
-	char *buffer = (char *)calloc(1024, sizeof(char));
 
-	char *socks_proxy_url, *http_proxy_url;
+	char *buffer = (char *)calloc(1024, sizeof(char));
 
 	if(buffer == NULL) {
 		fprintf(stderr, "Error allocating memory!\n");
 		return -1;
+	}
+	char config_location[512];
+	char *sakisafeclirc_env = getenv("SAKISAFECLIRC");
+
+	if(sakisafeclirc_env == NULL) {
+		snprintf(config_location, 512, "%s/.sakisafeclirc", getenv("HOME"));
+		FILE *fp = fopen(config_location, "r");
+		if(fp != NULL)
+			parse_config_file(fp);
+	} else {
+		strncpy(config_location, sakisafeclirc_env, 512);
+		FILE *fp = fopen(config_location, "r");
+		if(fp != NULL)
+			parse_config_file(fp);
 	}
 
 	CURL *easy_handle = curl_easy_init();
@@ -50,12 +67,11 @@ main(int argc, char **argv)
 		{ "help", no_argument, 0, 'h' },
 		{ "socks-proxy", required_argument, 0, 'p' },
 		{ "token", required_argument, 0, 'T' },
-		{ "http-proxy", no_argument, 0, 'P' },
+		{ "http-proxy", required_argument, 0, 'P' },
 		{ "silent", no_argument, 0, 'S' },
 		{ "ipv4", no_argument, 0, '4' },
 		{ "ipv6", no_argument, 0, '6' },
 		{ 0, 0, 0, 0 }
-
 	};
 
 	int c = 0;
@@ -191,5 +207,42 @@ main(int argc, char **argv)
 		store_link(history_file_path, buffer);
 	}
 	free(buffer);
+	config_destroy(&runtime_config);
 	return 0;
+}
+
+void
+parse_config_file(FILE *config)
+{
+	config_init(&runtime_config);
+	config_read(&runtime_config, config);
+	config_setting_t *cur;
+	cur = config_lookup(&runtime_config, "server");
+	if(config != NULL) {
+		if(cur != NULL)
+			server = (char *)config_setting_get_string(cur);
+		cur = config_lookup(&runtime_config, "socks_proxy");
+		if(cur != NULL)
+			socks_proxy_url = (char *)config_setting_get_string(cur);
+		cur = config_lookup(&runtime_config, "http_proxy");
+		if(cur != NULL)
+			http_proxy_url = (char *)config_setting_get_string(cur);
+		cur = config_lookup(&runtime_config, "use_socks_proxy");
+		if(cur != NULL)
+			socks_proxy_flag = config_setting_get_bool(cur);
+		cur = config_lookup(&runtime_config, "use_http_proxy");
+
+		if(cur != NULL)
+			http_proxy_flag = config_setting_get_bool(cur);
+
+		cur = config_lookup(&runtime_config, "silent");
+		if(cur != NULL)
+			silent_flag = config_setting_get_bool(cur);
+		cur = config_lookup(&runtime_config, "force_ipv6");
+		if(cur != NULL)
+			ipv6_flag = config_setting_get_bool(cur);
+		cur = config_lookup(&runtime_config, "force_ipv4");
+		if(cur != NULL)
+			ipv4_flag = config_setting_get_bool(cur);
+	}
 }

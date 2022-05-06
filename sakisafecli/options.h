@@ -9,9 +9,6 @@ char *server                   = "https://lainsafe.kalli.st";
  * socks/http proxy, you can set it here. 
  */
 
-int socks_proxy_port = 9050; /* Tor */
-int http_proxy_port  = 4444; /* I2P */
-
 /* Enable "history" files and where to store that file */
 
 char history_file_path[256];
