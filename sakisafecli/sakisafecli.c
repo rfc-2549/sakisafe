@@ -26,6 +26,7 @@ main(int argc, char **argv)
 	struct curl_httppost *last = NULL;
 
 	char *token = NULL;
+	char *form_key = "file";
 
 	char *buffer = (char *)calloc(1024, sizeof(char));
 
@@ -39,13 +40,17 @@ main(int argc, char **argv)
 	if(sakisafeclirc_env == NULL) {
 		snprintf(config_location, 512, "%s/.sakisafeclirc", getenv("HOME"));
 		FILE *fp = fopen(config_location, "r");
-		if(fp != NULL)
+		if(fp != NULL) {
 			parse_config_file(fp);
+			fclose(fp);
+		}
 	} else {
 		strncpy(config_location, sakisafeclirc_env, 512);
 		FILE *fp = fopen(config_location, "r");
-		if(fp != NULL)
+		if(fp != NULL) {
 			parse_config_file(fp);
+			fclose(fp);
+		}
 	}
 
 	CURL *easy_handle = curl_easy_init();
@@ -160,11 +165,17 @@ main(int argc, char **argv)
 	/* TODO: make it iterate on args so you can upload multiple files
 	 *  at once (sakisafecli file1 file2 ... filen)
 	 */
+
+	if(strstr(server, "concealed.world")) {
+		form_key = "upload";
+	}
+	puts(form_key);
+	
 	for(int i = optind; i < argc; i++) {
 		curl_formadd(&post,
 				   &last,
 				   CURLFORM_COPYNAME,
-				   "file",
+				   form_key,
 				   CURLFORM_FILE,
 				   argv[i],
 				   CURLFORM_END);
@@ -172,7 +183,7 @@ main(int argc, char **argv)
 		curl_formadd(&post,
 				   &last,
 				   CURLFORM_COPYNAME,
-				   "file",
+				   form_key,
 				   CURLFORM_COPYCONTENTS,
 				   argv[i],
 				   CURLFORM_END);
