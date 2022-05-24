@@ -165,11 +165,6 @@ main(int argc, char **argv)
 	/* TODO: make it iterate on args so you can upload multiple files
 	 *  at once (sakisafecli file1 file2 ... filen)
 	 */
-
-	if(strstr(server, "concealed.world")) {
-		form_key = "upload";
-	}
-	puts(form_key);
 	
 	for(int i = optind; i < argc; i++) {
 		curl_formadd(&post,
