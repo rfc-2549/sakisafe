@@ -3,7 +3,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include <stdbool.h>
-#include <errno.h>
+#include <err.h>
 #include <getopt.h>
 #include <unistd.h>
 #include <curl/curl.h>
@@ -22,6 +22,13 @@ config_t runtime_config;
 int
 main(int argc, char **argv)
 {
+	#ifdef __OpenBSD__
+	if(pledge("stdio rpath cpath inet dns unveil tmppath","") == -1) {
+		err(1,"pledge");
+		_exit(-1);
+	}
+	#endif
+
 	struct curl_httppost *post = NULL;
 	struct curl_httppost *last = NULL;
 
@@ -36,7 +43,7 @@ main(int argc, char **argv)
 	}
 	char config_location[512];
 	char *sakisafeclirc_env = getenv("SAKISAFECLIRC");
-
+	
 	if(sakisafeclirc_env == NULL) {
 		snprintf(config_location, 512, "%s/.sakisafeclirc", getenv("HOME"));
 		FILE *fp = fopen(config_location, "r");
@@ -45,7 +52,11 @@ main(int argc, char **argv)
 			fclose(fp);
 		}
 	} else {
+		#if defined(__OpenBSD__) || defined(__FreeBSD__)
+		strlcpy(config_location, sakisafeclirc_env, 512);
+		#else /* Linux sucks! */
 		strncpy(config_location, sakisafeclirc_env, 512);
+		#endif
 		FILE *fp = fopen(config_location, "r");
 		if(fp != NULL) {
 			parse_config_file(fp);
@@ -201,17 +212,11 @@ main(int argc, char **argv)
 		if(!silent_flag)
 			putchar('\n');
 
-		printf("%s", buffer);
+		puts(buffer);
 	}
 	curl_formfree(post);
 	curl_easy_cleanup(easy_handle);
 
-	/* Store link if needed */
-
-	if(enable_links_history) {
-		snprintf(history_file_path, 256, "%s/%s", getenv("HOME"), path);
-		store_link(history_file_path, buffer);
-	}
 	free(buffer);
 	config_destroy(&runtime_config);
 	return 0;
