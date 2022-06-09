@@ -1,0 +1,47 @@
+.Dd $Mdocdate$
+.Dt sakisafecli 1
+.Os
+.Sh sakisafecli
+.Nm sakisafecli
+.Nd file uploader
+
+.Sh SYPNOSIS
+
+sakisafecli https://sakisafe.tld FILE
+
+.Sh DESCRIPTION
+sakisafecli is a file uploader. Intended for sakisafe, but also works
+for 0x0.st, 0xff.i2p, i.kalli.st and probably others.
+.Sh OPTIONS
+
+.Sy --http_proxy
+Use an HTTP Proxy to make the request to the server.
+
+.Sy --socks_proxy 
+Use a SOCKS Proxy to make the request to the server.
+
+.Sy --server
+Specify which server to use to upload the given file.
+
+.Sy -4
+Force an IPv4 connection.
+
+.Sy -6
+Force an IPv6 connection.
+.Sh BUGS
+Of course.
+.Sh HISTORY
+
+First commit to 
+.Sy lainsafe
+was made in 2020-04-19.
+.Sy clainsafecli
+first commit was made in 2021-02-01.
+.Sy clainsafecli
+was rebranded to
+.Sy sakisafecli
+in 2022-05-05
+.Sh AUTHORS
+qorg11 <teru-sama at riseup dot net>
+.Sh SEE ALSO
+sakisafeclirc(5)

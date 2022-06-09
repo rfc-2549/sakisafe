@@ -1,0 +1,66 @@
+.Dd $Mdocdate$
+.Dt sakisafeclirc 5
+.Os
+.Sh sakisafeclirc
+.Nm sakisafeclirc
+.Nd sakisafecli runtime configuration
+.Sh DESCRIPTION
+The sakisafecli(1) utility supports a configuration file. Which is by
+default in $HOME/.sakisafeclirc.  This configuration file allows to
+change the default behaviour of sakisafecli(1) Lines that begin with 
+.Sy #
+are ignored.
+
+The files uses a simple 
+.Sy key=value 
+format. This are the possible keys:
+
+.Sy server (string)
+Specify the server to upload the file.
+
+.Sy http_proxy (string)
+Specify the HTTP proxy address.
+
+.Sy socks_proxy (string)
+Specify the SOCKS proxy address.
+
+.Sy use_socks_sproxy (boolean)
+Specify whether to use or not the SOCKS Proxy specified with 
+.Sy socks_proxy
+
+.Sy use_http_proxy (boolean)
+Specify whether to use or not the HTTP proxy specified with 
+.Sy http_proxy
+
+.Sy force_ipv6 (boolean)
+Force an IPv6 connection. Cannot be used with
+.Sy force_ipv4
+
+.Sy force_ipv4 (boolean)
+Force an IPv4 connection. Cannot be used with
+.Sy force_ipv6
+.Sh FILES
+
+.Bl -tag -width $HOME/.sakisafeclirc -compact
+.It Pa $HOME/.sakisafeclirc
+configuration file.
+.Sh EXAMPLE
+
+This example sets the default server to 
+.Em https://ls.qorg11.net. Forcing 
+.Em IPv6 connection
+and with the
+.Em socks_proxy 
+127.0.0.1:9050
+
+.Bd -literal -offset indent;
+server="https://ls.qorg11.net"
+socks_proxy="127.0.0.1:9050"
+force_ipv4=true
+use_socks_proxy=true
+.Ed
+.Sh AUTHORS
+qorg11 <teru-sama at riseup dot net>
+.Sh SEE ALSO
+sakisafecli(1)
+
