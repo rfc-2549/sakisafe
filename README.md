@@ -9,6 +9,8 @@
 * Or as a URL shorter
 * Runs with CGI
 * Tor access ;)
+* If running OpenBSD, sakisafecli will use pledge()
+
 
 ## Installation:
 
@@ -17,17 +19,11 @@
    the file
 2. There you go.
 
-
 # sakisafecli
 
-`sakisafecli` is the command line interface for sakisafe (and other
-filesharing services)
-
-## usage
-
-`sakisafecli --server=http://server <file>`
-
-(for more info see -h)
+sakisafecli is a command line interface for sakisafe servers (and
+other file upload services). To compile it run `make` (or `bmake` in
+linux systems) to compile it.
 
 # Donate
 
