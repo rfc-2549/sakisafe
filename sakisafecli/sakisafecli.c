@@ -29,10 +29,8 @@ main(int argc, char **argv)
 	}
 	#endif
 
-	struct curl_httppost *post = NULL;
-	struct curl_httppost *last = NULL;
+	
 
-	char *token = NULL;
 	char *form_key = "file";
 
 	char *buffer = (char *)calloc(1024, sizeof(char));
@@ -63,17 +61,25 @@ main(int argc, char **argv)
 			fclose(fp);
 		}
 	}
-
+	/* libcurl initialization */
+	
 	CURL *easy_handle = curl_easy_init();
+	curl_mime *mime;
+	mime = curl_mime_init(easy_handle);
 
 	if(!easy_handle) {
 		fprintf(stderr, "Error initializing libcurl\n");
 		return -1;
 	}
+	if(!mime) {
+		fprintf(stderr, "Error initializing curl_mime\n");
+	}
+	
 	if(argc == optind) {
 		print_usage();
 		free(buffer);
 		curl_easy_cleanup(easy_handle);
+		curl_mime_free(mime);
 		return -1;
 	}
 
@@ -82,7 +88,6 @@ main(int argc, char **argv)
 		{ "server", required_argument, 0, 's' },
 		{ "help", no_argument, 0, 'h' },
 		{ "socks-proxy", required_argument, 0, 'p' },
-		{ "token", required_argument, 0, 'T' },
 		{ "http-proxy", required_argument, 0, 'P' },
 		{ "silent", no_argument, 0, 'S' },
 		{ "ipv4", no_argument, 0, '4' },
@@ -114,9 +119,6 @@ main(int argc, char **argv)
 				break;
 			case 'S':
 				silent_flag = true;
-				break;
-			case 'T':
-				token = optarg;
 				break;
 			case '4':
 				ipv4_flag = true;
@@ -176,45 +178,26 @@ main(int argc, char **argv)
 	/* TODO: make it iterate on args so you can upload multiple files
 	 *  at once (sakisafecli file1 file2 ... filen)
 	 */
-	
+	curl_mimepart *file_data;
+	file_data = curl_mime_addpart(mime);
 	for(int i = optind; i < argc; i++) {
-		curl_formadd(&post,
-				   &last,
-				   CURLFORM_COPYNAME,
-				   form_key,
-				   CURLFORM_FILE,
-				   argv[i],
-				   CURLFORM_END);
-		/* Actual file content */
-		curl_formadd(&post,
-				   &last,
-				   CURLFORM_COPYNAME,
-				   form_key,
-				   CURLFORM_COPYCONTENTS,
-				   argv[i],
-				   CURLFORM_END);
-		if(token)
-			curl_formadd(&post,
-					   &last,
-					   CURLFORM_COPYNAME,
-					   "token",
-					   CURLFORM_COPYCONTENTS,
-					   token,
-					   CURLFORM_END);
+		curl_mime_filedata(file_data, argv[i]);
+		curl_mime_name(file_data, form_key);
+	}
+					   
 
 		curl_easy_setopt(easy_handle, CURLOPT_NOPROGRESS, silent_flag);
 		curl_easy_setopt(easy_handle, CURLOPT_PROGRESSFUNCTION, progress);
-
-		curl_easy_setopt(easy_handle, CURLOPT_HTTPPOST, post);
-
+		
+		curl_easy_setopt(easy_handle, CURLOPT_MIMEPOST, mime);
 		curl_easy_perform(easy_handle);
 
 		if(!silent_flag)
 			putchar('\n');
 
 		puts(buffer);
-	}
-	curl_formfree(post);
+
+	curl_mime_free(mime);
 	curl_easy_cleanup(easy_handle);
 
 	free(buffer);
