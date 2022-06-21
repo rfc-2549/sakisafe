@@ -1,8 +1,11 @@
-#pragma once
+#ifndef OPTIONS_H
+#define OPTIONS_H
+
+#include <libconfig.h>
 /* clainsafecli options */
 
 /* Default server you'll upload files to */
-char *server                   = "https://lainsafe.kalli.st";
+extern char *server;
 
 /* proxy urls, socks and http. in that order, by default they're
  * configured to be used for tor and i2p, but if you have another
@@ -11,7 +14,18 @@ char *server                   = "https://lainsafe.kalli.st";
 
 /* Enable "history" files and where to store that file */
 
-char history_file_path[256];
-const int enable_links_history = 1;
-const char *path               = ".cache/lainsafelinks";
+extern char history_file_path[256];
+extern const int enable_links_history;
+extern const char *path;
 
+/* Config file variables */
+extern char *socks_proxy_url, *http_proxy_url;
+
+extern bool socks_proxy_flag;
+extern bool http_proxy_flag;
+extern bool ipv6_flag;
+extern bool ipv4_flag;
+extern bool silent_flag;
+extern config_t runtime_config;
+
+#endif  /* OPTIONS_H */

@@ -19,28 +19,14 @@ print_usage()
 	return;
 }
 
-int
-store_link(const char *path, const char *buf)
-{
-	FILE *fp = fopen(path,"a+");
-	if(fp == NULL) {
-		fprintf(stderr,"Error opening file %i: %s\n",errno,
-			strerror(errno));
-		return -1;
-	}
-	fwrite(buf,strlen(buf),1,fp);
-	fputc('\n',fp);
-	fclose(fp);
-	return 0;
-}
 
 void
 print_help()
 {
 	printf("--server <server>: specifies the sakisafe server\n%s\n%s\n%s\n%s\n%s\n%s\n%s",
 		"-t|--token: Authentication token (https://u.kalli.st)",
-		"--tor: uses tor.",
-		"--i2p: uses i2p.",
+		"--http-proxy|P: http proxy to use e.g. http://127.0.0.1:4444",
+		"--socks-proxy|p: SOCK proxy to use e.g. 127.0.0.1:9050.",
 		"-6|--ipv6: uses IPv6 only.",
 		"-4|--ipv6: uses IPv4 only.",
 		"--silent: doesn't print progress.",
@@ -58,7 +44,7 @@ progress(void *clientp,
 	/* So I don't get a warning */
      dltotal += 1;
 	dlnow   += 1;
-	printf("\r%0.f uploaded of %0.f (\E[32;1m%0.f%%\E[30;0m)",ulnow,ultotal,
+	printf("\r%0.f uploaded of %0.f (\033[32;1m%0.f%%\033[30;0m)",ulnow,ultotal,
 		ulnow*100/ultotal);
 	fflush(stdout);
 	

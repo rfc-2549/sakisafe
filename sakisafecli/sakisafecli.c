@@ -12,13 +12,16 @@
 #include "sakisafecli.h"
 
 /* Config variables */
-char *socks_proxy_url, *http_proxy_url;
 
-bool socks_proxy_flag = false, http_proxy_flag = false;
-bool ipv6_flag = false, ipv4_flag = false;
-bool silent_flag = false;
+bool ipv6_flag = false, ipv4_flag = false, http_proxy_flag = false,
+	socks_proxy_flag = false, silent_flag = false;
+
+char *http_proxy_url, *socks_proxy_url;
+
 config_t runtime_config;
 
+char *server = "https://lainsafe.delegao.moe";
+const char *path   = ".cache/sakisafelinks";
 int
 main(int argc, char **argv)
 {
@@ -28,8 +31,6 @@ main(int argc, char **argv)
 		_exit(-1);
 	}
 	#endif
-
-	
 
 	char *form_key = "file";
 
@@ -205,38 +206,3 @@ main(int argc, char **argv)
 	return 0;
 }
 
-void
-parse_config_file(FILE *config)
-{
-	config_init(&runtime_config);
-	config_read(&runtime_config, config);
-	config_setting_t *cur;
-	cur = config_lookup(&runtime_config, "server");
-	if(config != NULL) {
-		if(cur != NULL)
-			server = (char *)config_setting_get_string(cur);
-		cur = config_lookup(&runtime_config, "socks_proxy");
-		if(cur != NULL)
-			socks_proxy_url = (char *)config_setting_get_string(cur);
-		cur = config_lookup(&runtime_config, "http_proxy");
-		if(cur != NULL)
-			http_proxy_url = (char *)config_setting_get_string(cur);
-		cur = config_lookup(&runtime_config, "use_socks_proxy");
-		if(cur != NULL)
-			socks_proxy_flag = config_setting_get_bool(cur);
-		cur = config_lookup(&runtime_config, "use_http_proxy");
-
-		if(cur != NULL)
-			http_proxy_flag = config_setting_get_bool(cur);
-
-		cur = config_lookup(&runtime_config, "silent");
-		if(cur != NULL)
-			silent_flag = config_setting_get_bool(cur);
-		cur = config_lookup(&runtime_config, "force_ipv6");
-		if(cur != NULL)
-			ipv6_flag = config_setting_get_bool(cur);
-		cur = config_lookup(&runtime_config, "force_ipv4");
-		if(cur != NULL)
-			ipv4_flag = config_setting_get_bool(cur);
-	}
-}

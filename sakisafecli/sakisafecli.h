@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SAKISAFECLI_H
+#define SAKISAFECLI_H
 #include <stdlib.h>
 #include <stdio.h>
 
@@ -20,3 +21,4 @@ progress(
 
 void
 parse_config_file(FILE *config);	
+#endif /* SAKISAFECLI_H */
