@@ -14,23 +14,23 @@
 /* Config variables */
 
 bool ipv6_flag = false, ipv4_flag = false, http_proxy_flag = false,
-	socks_proxy_flag = false, silent_flag = false;
+	socks_proxy_flag = false, silent_flag = false, paste_flag = false;
 
 char *http_proxy_url, *socks_proxy_url;
 
 config_t runtime_config;
 
 char *server = "https://lainsafe.delegao.moe";
-const char *path   = ".cache/sakisafelinks";
+const char *path = ".cache/sakisafelinks";
 int
 main(int argc, char **argv)
 {
-	#ifdef __OpenBSD__
-	if(pledge("stdio rpath cpath inet dns unveil tmppath","") == -1) {
-		err(1,"pledge");
+#ifdef __OpenBSD__
+	if(pledge("stdio rpath cpath inet dns unveil tmppath", "") == -1) {
+		err(1, "pledge");
 		_exit(-1);
 	}
-	#endif
+#endif
 
 	char *form_key = "file";
 
@@ -42,7 +42,7 @@ main(int argc, char **argv)
 	}
 	char config_location[512];
 	char *sakisafeclirc_env = getenv("SAKISAFECLIRC");
-	
+
 	if(sakisafeclirc_env == NULL) {
 		snprintf(config_location, 512, "%s/.sakisafeclirc", getenv("HOME"));
 		FILE *fp = fopen(config_location, "r");
@@ -51,11 +51,11 @@ main(int argc, char **argv)
 			fclose(fp);
 		}
 	} else {
-		#if defined(__OpenBSD__) || defined(__FreeBSD__)
+#if defined(__OpenBSD__) || defined(__FreeBSD__)
 		strlcpy(config_location, sakisafeclirc_env, 512);
-		#else /* Linux sucks! */
+#else /* Linux sucks! */
 		strncpy(config_location, sakisafeclirc_env, 512);
-		#endif
+#endif
 		FILE *fp = fopen(config_location, "r");
 		if(fp != NULL) {
 			parse_config_file(fp);
@@ -63,7 +63,7 @@ main(int argc, char **argv)
 		}
 	}
 	/* libcurl initialization */
-	
+
 	CURL *easy_handle = curl_easy_init();
 	curl_mime *mime;
 	mime = curl_mime_init(easy_handle);
@@ -75,7 +75,7 @@ main(int argc, char **argv)
 	if(!mime) {
 		fprintf(stderr, "Error initializing curl_mime\n");
 	}
-	
+
 	if(argc == optind) {
 		print_usage();
 		free(buffer);
@@ -93,12 +93,13 @@ main(int argc, char **argv)
 		{ "silent", no_argument, 0, 'S' },
 		{ "ipv4", no_argument, 0, '4' },
 		{ "ipv6", no_argument, 0, '6' },
+		{ "paste", no_argument, 0, 'x' },
 		{ 0, 0, 0, 0 }
 	};
 
 	int c = 0;
 	while((c = getopt_long(
-			  argc, argv, "46hT:p:P:Ss:", long_options, &option_index)) !=
+			  argc, argv, "46hT:p:P:Ss:x", long_options, &option_index)) !=
 		 -1) {
 		switch(c) {
 			case 's':
@@ -127,6 +128,11 @@ main(int argc, char **argv)
 			case '6':
 				ipv6_flag = true;
 				break;
+			case 'x':
+				/* We don't want the progress bar in this case */
+				silent_flag = true;
+				paste_flag = true;
+				break;
 			case '?':
 				print_usage();
 				return 0;
@@ -138,7 +144,7 @@ main(int argc, char **argv)
 		}
 	}
 
-	if(access(argv[optind], F_OK)) {
+	if(access(argv[optind], F_OK) && !paste_flag) {
 		fprintf(stderr, "Error opening file\n");
 		return -1;
 	}
@@ -181,22 +187,26 @@ main(int argc, char **argv)
 	 */
 	curl_mimepart *file_data;
 	file_data = curl_mime_addpart(mime);
-	for(int i = optind; i < argc; i++) {
-		curl_mime_filedata(file_data, argv[i]);
-		curl_mime_name(file_data, form_key);
-	}
-					   
+	char *filename = argv[argc];
+	
+	if(paste_flag)
+		filename = "/dev/stdin";
 
-		curl_easy_setopt(easy_handle, CURLOPT_NOPROGRESS, silent_flag);
-		curl_easy_setopt(easy_handle, CURLOPT_PROGRESSFUNCTION, progress);
-		
-		curl_easy_setopt(easy_handle, CURLOPT_MIMEPOST, mime);
-		curl_easy_perform(easy_handle);
+	curl_mime_filedata(file_data, filename);
+	curl_mime_name(file_data, form_key);
+	if(paste_flag)
+		curl_mime_filename(file_data, "-");
 
-		if(!silent_flag)
-			putchar('\n');
+	curl_easy_setopt(easy_handle, CURLOPT_NOPROGRESS, silent_flag);
+	curl_easy_setopt(easy_handle, CURLOPT_PROGRESSFUNCTION, progress);
 
-		puts(buffer);
+	curl_easy_setopt(easy_handle, CURLOPT_MIMEPOST, mime);
+	curl_easy_perform(easy_handle);
+
+	if(!silent_flag)
+		putchar('\n');
+
+	puts(buffer);
 
 	curl_mime_free(mime);
 	curl_easy_cleanup(easy_handle);
@@ -205,4 +215,3 @@ main(int argc, char **argv)
 	config_destroy(&runtime_config);
 	return 0;
 }
-
