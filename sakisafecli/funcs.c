@@ -23,14 +23,15 @@ print_usage()
 void
 print_help()
 {
-	printf("--server <server>: specifies the sakisafe server\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s",
+	printf("-s|--server: specifies the sakisafe server\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s",
 		"-t|--token: Authentication token (https://u.kalli.st)",
 		"-P|--http-proxy: http proxy to use e.g. http://127.0.0.1:4444",
-		"-p|--socks-proxy: SOCK proxy to use e.g. 127.0.0.1:9050.",
-		"-6|--ipv6: uses IPv6 only.",
-		"-4|--ipv6: uses IPv4 only.",
-		"--silent: doesn't print progress.",
+		"-p|--socks-proxy: SOCK proxy to use e.g. 127.0.0.1:9050",
+		"-6|--ipv6: uses IPv6 only",
+		"-4|--ipv6: uses IPv4 only",
+		"-S|--silent: doesn't print progress",
 		"-x|--paste: read file from stdin",
+		"-C: print current settings",
 		"-h|--help: print this message.\n");
 	return;
 }
