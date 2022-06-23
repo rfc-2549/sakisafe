@@ -9,6 +9,8 @@
 #include <curl/curl.h>
 
 #include "options.h"
+#include "config.h"
+#include "funcs.h"
 #include "sakisafecli.h"
 
 /* Config variables */
@@ -99,7 +101,7 @@ main(int argc, char **argv)
 
 	int c = 0;
 	while((c = getopt_long(
-			  argc, argv, "46hT:p:P:Ss:x", long_options, &option_index)) !=
+			  argc, argv, "46hT:p:P:Ss:xC", long_options, &option_index)) !=
 		 -1) {
 		switch(c) {
 			case 's':
@@ -137,6 +139,9 @@ main(int argc, char **argv)
 				print_usage();
 				return 0;
 				break;
+			case 'C':
+				print_config();
+				return 0;
 			default:
 				print_usage();
 				return 0;
@@ -187,8 +192,8 @@ main(int argc, char **argv)
 	 */
 	curl_mimepart *file_data;
 	file_data = curl_mime_addpart(mime);
-	char *filename = argv[argc];
-	
+	char *filename = argv[optind];
+
 	if(paste_flag)
 		filename = "/dev/stdin";
 

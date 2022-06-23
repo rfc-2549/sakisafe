@@ -1,6 +1,34 @@
 #include <libconfig.h>
 #include <stdbool.h>
+#include <stdio.h>
 #include "options.h"
+#include "config.h"
+
+void
+print_config()
+{
+	puts("Current configuration:");
+	printf("Server: %s\n",server);
+	if(socks_proxy_flag)
+		printf("Socks proxy url: %s",socks_proxy_url);
+	if(http_proxy_flag)
+		printf("HTTP proxy url: %s",http_proxy_url);
+	if(silent_flag)
+		puts("Silent: true");
+	else
+		puts("Silent: false");
+	if(ipv6_flag)
+		printf("Force IPv6: true\n");
+	else
+		printf("Force IPv6: false\n");
+	if(ipv4_flag)
+		printf("Force IPv4: true\n");
+	else
+		printf("Force IPv4: false\n");
+
+	return;
+}
+
 void
 parse_config_file(FILE *config)
 {
