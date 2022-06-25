@@ -22,8 +22,17 @@
 # sakisafecli
 
 sakisafecli is a command line interface for sakisafe servers (and
-other file upload services). To compile it run `make` (or `bmake` in
-linux systems) to compile it.
+other file upload services).
+
+## Installation
+
+### Compilation
+
+Clone the repo and run `make` (or `bmake` in linux systems)
+
+### Repositories
+
+![](https://repology.org/badge/vertical-allrepos/sakisafe.svg)
 
 # Donate
 
