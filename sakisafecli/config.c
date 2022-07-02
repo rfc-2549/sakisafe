@@ -9,19 +9,19 @@ print_config()
 {
 	puts("Current configuration:");
 	printf("Server: %s\n",server);
-	if(socks_proxy_flag)
-		printf("Socks proxy url: %s",socks_proxy_url);
-	if(http_proxy_flag)
-		printf("HTTP proxy url: %s",http_proxy_url);
-	if(silent_flag)
+	if(rc.socks_proxy_flag)
+		printf("Socks proxy url: %s",rc.socks_proxy_url);
+	if(rc.http_proxy_flag)
+		printf("HTTP proxy url: %s",rc.http_proxy_url);
+	if(rc.silent_flag)
 		puts("Silent: true");
 	else
 		puts("Silent: false");
-	if(ipv6_flag)
+	if(rc.ipv6_flag)
 		printf("Force IPv6: true\n");
 	else
 		printf("Force IPv6: false\n");
-	if(ipv4_flag)
+	if(rc.ipv4_flag)
 		printf("Force IPv4: true\n");
 	else
 		printf("Force IPv4: false\n");
@@ -30,38 +30,14 @@ print_config()
 }
 
 void
-parse_config_file(FILE *config)
+init_config(struct config *rc)
 {
-
-	config_t runtime_config;
-
-	config_init(&runtime_config);
-	config_read(&runtime_config, config);
-	config_setting_t *cur;
-	cur = config_lookup(&runtime_config, "server");
-	if(config != NULL) {
-		if(cur != NULL)
-			server = (char *)config_setting_get_string(cur);
-		cur = config_lookup(&runtime_config, "socks_proxy");
-		if(cur != NULL)
-			socks_proxy_url = (char *)config_setting_get_string(cur);
-		cur = config_lookup(&runtime_config, "http_proxy");
-		if(cur != NULL)
-			http_proxy_url = (char *)config_setting_get_string(cur);
-		cur = config_lookup(&runtime_config, "use_socks_proxy");
-		if(cur != NULL)
-			socks_proxy_flag = config_setting_get_bool(cur);
-		cur = config_lookup(&runtime_config, "use_http_proxy");
-		if(cur != NULL)
-			http_proxy_flag = config_setting_get_bool(cur);
-		cur = config_lookup(&runtime_config, "silent");
-		if(cur != NULL)
-			silent_flag = config_setting_get_bool(cur);
-		cur = config_lookup(&runtime_config, "force_ipv6");
-		if(cur != NULL)
-			ipv6_flag = config_setting_get_bool(cur);
-		cur = config_lookup(&runtime_config, "force_ipv4");
-		if(cur != NULL)
-			ipv4_flag = config_setting_get_bool(cur);
-	}
+	rc->http_proxy_flag = false;
+	rc->socks_proxy_flag = false;
+	rc->http_proxy_url = NULL;
+	rc->socks_proxy_url = NULL;
+	rc->ipv4_flag = false;
+	rc->ipv6_flag = false;
+	rc->silent_flag = false;
+	rc->server = "https://lainsafe.delegao.moe";
 }

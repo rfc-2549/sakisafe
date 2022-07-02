@@ -1,9 +1,21 @@
-#include <libconfig.h>
+struct config
+{
+	bool ipv6_flag;
+	bool ipv4_flag;
+	bool http_proxy_flag;
+	bool socks_proxy_flag;
+	bool silent_flag;
+	bool paste_flag;
+	char *http_proxy_url;
+	char *socks_proxy_url;
+	char *server;
+};
 
-/* Parse the config file */
-void
-parse_config_file(FILE *config);
+extern struct config rc;
 
-/* Print the current settings */
+/* Init the config */
 void
-print_config();	
+init_config(struct config *rc);
+
+
+
