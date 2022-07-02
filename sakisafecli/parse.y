@@ -4,7 +4,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include "config.h"
-#define YYSTYPE char*
+
     struct config rc;
     int yyparse(void);
     void yyerror(const char *str) {
@@ -17,11 +17,15 @@
 	   return 1;
     }
 
-%}
+	   %}
 
+%union YYSTYPE {
+    int val;
+    char *str;
+}
 
-%token SERVERTOK HPTOK SPTOK USPTOK UHPTOK IP4TOK IP6TOK QUOTE URL SEMICOLON WORD
-
+%token SERVERTOK HPTOK SPTOK USPTOK UHPTOK IP4TOK IP6TOK SILTOK QUOTE
+%token URL SEMICOLON WORD EQUAL
 
 %%
 
@@ -35,7 +39,7 @@ statements
 |
 IP4TOK quotedword
 {
-    if(!strcmp($2,"true"))
+    if($2.val)
 	   rc.ipv4_flag = true;
     else
 	   rc.ipv4_flag = false;
@@ -43,7 +47,7 @@ IP4TOK quotedword
 |
 IP6TOK quotedword
 {
-    if(!strcmp($2,"true"))
+    if($2.val)
 	   rc.ipv6_flag = true;
     else
 	   rc.ipv6_flag = false;
@@ -51,30 +55,38 @@ IP6TOK quotedword
 |
 SERVERTOK quotedname
 {
-    rc.server = $2;
+    rc.server = $2.str;
 }
 |
 HPTOK quotedname
 {
-    rc.http_proxy_url = $2;
+    rc.http_proxy_url = $2.str;
 }
 |
 SPTOK quotedname
 {
-    rc.socks_proxy_url = $2;
+    rc.socks_proxy_url = $2.str;
 }
+|
+SILTOK quotedword
+{
+    if($2.val)
+	   rc.silent_flag = true;
+    else
+	   rc.silent_flag = false;
+}			 
 ;
 
 quotedname:
-QUOTE URL QUOTE
+EQUAL QUOTE URL QUOTE
 {
-    $$=$2;
+    $$=$3;
 }
 
 quotedword:
-QUOTE WORD QUOTE
+EQUAL QUOTE WORD QUOTE
 {
-    $$=$2;
+    $$=$3;
 }
 
 statements:

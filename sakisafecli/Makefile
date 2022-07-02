@@ -8,7 +8,7 @@ PREFIX = /usr/local
 BINDIR = $(PREFIX)/bin
 MANDIR = $(PREFIX)/man/man
 
-lex.yy.c:
+lex.yy.c: parse.l
 	lex parse.l
 
 .include <bsd.prog.mk>
