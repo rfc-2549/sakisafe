@@ -1,3 +1,6 @@
+#include <stdbool.h>
+#include <stdio.h>
+
 struct config
 {
 	bool ipv6_flag;
@@ -12,10 +15,10 @@ struct config
 };
 
 extern struct config rc;
-
+extern FILE *yyin;
 /* Init the config */
 void
 init_config(struct config *rc);
 
-
-
+void
+load_config();

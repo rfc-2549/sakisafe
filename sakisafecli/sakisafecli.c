@@ -15,9 +15,6 @@
 
 /* Config variables */
 
-struct config rc;
-
-char *server = "https://lainsafe.delegao.moe";
 const char *path = ".cache/sakisafelinks";
 int
 main(int argc, char **argv)
@@ -39,7 +36,7 @@ main(int argc, char **argv)
 	char config_location[512];
 	
 	init_config(&rc);
-
+	load_config();
 	/* libcurl initialization */
 
 	CURL *easy_handle = curl_easy_init();
@@ -133,7 +130,7 @@ main(int argc, char **argv)
 	/* curl options */
 	curl_easy_setopt(easy_handle, CURLOPT_WRITEFUNCTION, write_data);
 	curl_easy_setopt(easy_handle, CURLOPT_WRITEDATA, buffer);
-	curl_easy_setopt(easy_handle, CURLOPT_URL, server);
+	curl_easy_setopt(easy_handle, CURLOPT_URL, rc.server);
 
 	/* Proxy options */
 

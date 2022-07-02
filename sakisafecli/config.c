@@ -8,7 +8,7 @@ void
 print_config()
 {
 	puts("Current configuration:");
-	printf("Server: %s\n",server);
+	printf("Server: %s\n",rc.server);
 	if(rc.socks_proxy_flag)
 		printf("Socks proxy url: %s",rc.socks_proxy_url);
 	if(rc.http_proxy_flag)
@@ -40,4 +40,10 @@ init_config(struct config *rc)
 	rc->ipv6_flag = false;
 	rc->silent_flag = false;
 	rc->server = "https://lainsafe.delegao.moe";
+}
+void
+load_config()
+{
+	yyin = fopen("/usr/home/qorg/.sakisafeclirc","r");
+	yyparse();
 }
