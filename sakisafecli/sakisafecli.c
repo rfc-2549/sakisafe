@@ -228,9 +228,11 @@ main(int argc, char **argv)
 
 		curl_easy_setopt(easy_handle, CURLOPT_MIMEPOST, mime);
 		curl_easy_perform(easy_handle);
+		if(!silent_flag)
+			putchar('\n');
 		puts(buffer);
-		if(protocol == CURLPROTO_HTTP)
-			curl_mime_free(mime);
+		curl_mime_free(mime);
+
 	}
 	/* Process SCP uploads */
 	else if(protocol == CURLPROTO_SCP) {
@@ -253,8 +255,6 @@ main(int argc, char **argv)
 		return -1;
 	}
 
-	if(!silent_flag)
-		putchar('\n');
 	curl_easy_cleanup(easy_handle);
 
 	free(buffer);
