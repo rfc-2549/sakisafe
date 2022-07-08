@@ -8,11 +8,11 @@ void
 print_config()
 {
 	puts("Current configuration:");
-	printf("Server: %s\n",server);
+	printf("Server: %s\n", server);
 	if(socks_proxy_flag)
-		printf("Socks proxy url: %s",socks_proxy_url);
+		printf("Socks proxy url: %s", socks_proxy_url);
 	if(http_proxy_flag)
-		printf("HTTP proxy url: %s",http_proxy_url);
+		printf("HTTP proxy url: %s", http_proxy_url);
 	if(silent_flag)
 		puts("Silent: true");
 	else
@@ -39,6 +39,7 @@ parse_config_file(FILE *config)
 	config_read(&runtime_config, config);
 	config_setting_t *cur;
 	cur = config_lookup(&runtime_config, "server");
+	
 	if(config != NULL) {
 		if(cur != NULL)
 			server = (char *)config_setting_get_string(cur);
@@ -63,5 +64,8 @@ parse_config_file(FILE *config)
 		cur = config_lookup(&runtime_config, "force_ipv4");
 		if(cur != NULL)
 			ipv4_flag = config_setting_get_bool(cur);
+		cur = config_lookup(&runtime_config, "key");
+		if(cur != NULL)
+			ssh_key_path = (char *)config_setting_get_string(cur);
 	}
 }

@@ -39,11 +39,18 @@ Force an IPv6 connection. Cannot be used with
 .Sy force_ipv4 (boolean)
 Force an IPv4 connection. Cannot be used with
 .Sy force_ipv6
+
+.Sy key
+Path to the private ssh key used to connect to a server using the
+.Sy scp
+protocol.
+
 .Sh FILES
 
 .Bl -tag -width $HOME/.sakisafeclirc -compact
 .It Pa $HOME/.sakisafeclirc
 configuration file.
+
 .Sh EXAMPLE
 
 This example sets the default server to 

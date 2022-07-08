@@ -27,5 +27,5 @@ extern bool ipv6_flag;
 extern bool ipv4_flag;
 extern bool silent_flag;
 extern config_t runtime_config;
-
+extern char *ssh_key_path;
 #endif  /* OPTIONS_H */

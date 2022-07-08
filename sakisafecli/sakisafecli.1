@@ -7,11 +7,12 @@
 
 .Sh SYPNOSIS
 
-sakisafecli https://sakisafe.tld FILE
+sakisafecli [https]://sakisafe.tld FILE
 
 .Sh DESCRIPTION
 sakisafecli is a file uploader. Intended for sakisafe, but also works
-for 0x0.st, 0xff.i2p, i.kalli.st and probably others.
+for 0x0.st, 0xff.i2p, i.kalli.st and probably others. It also supports
+transfer via scp.
 .Sh OPTIONS
 
 .Sy --http_proxy
@@ -35,6 +36,11 @@ server.
 
 .Sy -C
 Print the current settings.
+
+.Sy --key
+path to the private SSH key to use. Only useful when using the
+.Sy scp://
+protocol.
 
 .Sh BUGS
 Of course.

@@ -21,7 +21,7 @@ bool ipv6_flag = false, ipv4_flag = false, http_proxy_flag = false,
 	socks_proxy_flag = false, silent_flag = false, paste_flag = false;
 
 char *http_proxy_url, *socks_proxy_url;
-
+char *ssh_key_path = NULL;
 config_t runtime_config;
 
 char *server = "https://lainsafe.delegao.moe";
@@ -147,8 +147,7 @@ main(int argc, char **argv)
 				print_config();
 				return 0;
 			case 'k':
-				curl_easy_setopt(
-					easy_handle, CURLOPT_SSH_PRIVATE_KEYFILE, optarg);
+				ssh_key_path = optarg;
 				break;
 			default:
 				print_usage();
@@ -169,6 +168,12 @@ main(int argc, char **argv)
 	curl_easy_setopt(easy_handle, CURLOPT_URL, server);
 
 	int protocol = get_protocol(server);
+
+	/* If using SCP, set the ssh key */
+	if(protocol == CURLPROTO_SCP && ssh_key_path != NULL) {
+		curl_easy_setopt(
+			easy_handle, CURLOPT_SSH_PRIVATE_KEYFILE, ssh_key_path);
+	}
 
 	/* Proxy options */
 
@@ -205,8 +210,6 @@ main(int argc, char **argv)
 
 	/* Process HTTP uploads */
 
-	printf("%d\n", protocol);
-
 	if(protocol == CURLPROTO_HTTP || protocol == CURLPROTO_HTTPS) {
 		curl_mimepart *file_data;
 		file_data = curl_mime_addpart(mime);
@@ -228,17 +231,23 @@ main(int argc, char **argv)
 		puts(buffer);
 		if(protocol == CURLPROTO_HTTP)
 			curl_mime_free(mime);
-	} else if(protocol == CURLPROTO_SCP) {
+	}
+	/* Process SCP uploads */
+	else if(protocol == CURLPROTO_SCP) {
+		char path[256];
+		char *filename = argv[optind];
 		curl_easy_setopt(easy_handle, CURLOPT_UPLOAD, true);
-		FILE *fp = fopen(argv[optind], "r");
+		FILE *fp = fopen(filename, "r");
 		struct stat st;
 		stat(argv[optind], &st);
+		snprintf(path, 256, "%s/%s", server, filename);
 		curl_easy_setopt(easy_handle, CURLOPT_READDATA, fp);
 		curl_easy_setopt(easy_handle, CURLOPT_NOPROGRESS, silent_flag);
 		curl_easy_setopt(easy_handle, CURLOPT_PROGRESSFUNCTION, progress);
 		curl_easy_setopt(
 			easy_handle, CURLOPT_INFILESIZE_LARGE, (curl_off_t)st.st_size);
-		printf("%d\n", curl_easy_perform(easy_handle));
+		curl_easy_setopt(easy_handle, CURLOPT_URL, path);
+		curl_easy_perform(easy_handle);
 	} else {
 		puts("Unsupported protocol");
 		return -1;
@@ -246,7 +255,6 @@ main(int argc, char **argv)
 
 	if(!silent_flag)
 		putchar('\n');
-
 	curl_easy_cleanup(easy_handle);
 
 	free(buffer);
