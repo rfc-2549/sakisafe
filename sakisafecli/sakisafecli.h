@@ -20,5 +20,8 @@ progress(
 	void *clientp, double dltotal, double dlnow, double ultotal, double ulnow);
 
 void
-parse_config_file(FILE *config);	
+parse_config_file(FILE *config);
+int
+get_protocol(char *server);
+
 #endif /* SAKISAFECLI_H */

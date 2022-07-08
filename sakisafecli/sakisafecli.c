@@ -7,7 +7,9 @@
 #include <getopt.h>
 #include <unistd.h>
 #include <curl/curl.h>
+#include <sys/stat.h>
 
+#include "curl/easy.h"
 #include "options.h"
 #include "config.h"
 #include "funcs.h"
@@ -96,13 +98,15 @@ main(int argc, char **argv)
 		{ "ipv4", no_argument, 0, '4' },
 		{ "ipv6", no_argument, 0, '6' },
 		{ "paste", no_argument, 0, 'x' },
+		{ "key", required_argument, 0, 'k' },
 		{ 0, 0, 0, 0 }
 	};
 
 	int c = 0;
-	while((c = getopt_long(
-			  argc, argv, "46hT:p:P:Ss:xC", long_options, &option_index)) !=
-		 -1) {
+	while(
+		(c = getopt_long(
+			 argc, argv, "46hT:p:P:Ss:xCk:", long_options, &option_index)) !=
+		-1) {
 		switch(c) {
 			case 's':
 				server = optarg;
@@ -142,6 +146,10 @@ main(int argc, char **argv)
 			case 'C':
 				print_config();
 				return 0;
+			case 'k':
+				curl_easy_setopt(
+					easy_handle, CURLOPT_SSH_PRIVATE_KEYFILE, optarg);
+				break;
 			default:
 				print_usage();
 				return 0;
@@ -157,7 +165,10 @@ main(int argc, char **argv)
 	/* curl options */
 	curl_easy_setopt(easy_handle, CURLOPT_WRITEFUNCTION, write_data);
 	curl_easy_setopt(easy_handle, CURLOPT_WRITEDATA, buffer);
+
 	curl_easy_setopt(easy_handle, CURLOPT_URL, server);
+
+	int protocol = get_protocol(server);
 
 	/* Proxy options */
 
@@ -168,7 +179,8 @@ main(int argc, char **argv)
 		curl_easy_setopt(easy_handle, CURLOPT_PROXY, socks_proxy_url);
 		curl_easy_setopt(
 			easy_handle, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5_HOSTNAME);
-	} else if(http_proxy_flag) {
+	} else if(http_proxy_flag && ((protocol == CURLPROTO_HTTP) ||
+							(protocol == CURLPROTO_HTTPS))) {
 		curl_easy_setopt(easy_handle, CURLOPT_PROXY, http_proxy_url);
 		curl_easy_setopt(easy_handle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
 	}
@@ -190,33 +202,65 @@ main(int argc, char **argv)
 	/* TODO: make it iterate on args so you can upload multiple files
 	 *  at once (sakisafecli file1 file2 ... filen)
 	 */
-	curl_mimepart *file_data;
-	file_data = curl_mime_addpart(mime);
-	char *filename = argv[optind];
 
-	if(paste_flag)
-		filename = "/dev/stdin";
+	/* Process HTTP uploads */
 
-	curl_mime_filedata(file_data, filename);
-	curl_mime_name(file_data, form_key);
-	if(paste_flag)
-		curl_mime_filename(file_data, "-");
+	printf("%d\n", protocol);
 
-	curl_easy_setopt(easy_handle, CURLOPT_NOPROGRESS, silent_flag);
-	curl_easy_setopt(easy_handle, CURLOPT_PROGRESSFUNCTION, progress);
+	if(protocol == CURLPROTO_HTTP || protocol == CURLPROTO_HTTPS) {
+		curl_mimepart *file_data;
+		file_data = curl_mime_addpart(mime);
+		char *filename = argv[optind];
 
-	curl_easy_setopt(easy_handle, CURLOPT_MIMEPOST, mime);
-	curl_easy_perform(easy_handle);
+		if(paste_flag)
+			filename = "/dev/stdin";
+
+		curl_mime_filedata(file_data, filename);
+		curl_mime_name(file_data, form_key);
+		if(paste_flag)
+			curl_mime_filename(file_data, "-");
+
+		curl_easy_setopt(easy_handle, CURLOPT_NOPROGRESS, silent_flag);
+		curl_easy_setopt(easy_handle, CURLOPT_PROGRESSFUNCTION, progress);
+
+		curl_easy_setopt(easy_handle, CURLOPT_MIMEPOST, mime);
+		curl_easy_perform(easy_handle);
+		puts(buffer);
+		if(protocol == CURLPROTO_HTTP)
+			curl_mime_free(mime);
+	} else if(protocol == CURLPROTO_SCP) {
+		curl_easy_setopt(easy_handle, CURLOPT_UPLOAD, true);
+		FILE *fp = fopen(argv[optind], "r");
+		struct stat st;
+		stat(argv[optind], &st);
+		curl_easy_setopt(easy_handle, CURLOPT_READDATA, fp);
+		curl_easy_setopt(easy_handle, CURLOPT_NOPROGRESS, silent_flag);
+		curl_easy_setopt(easy_handle, CURLOPT_PROGRESSFUNCTION, progress);
+		curl_easy_setopt(
+			easy_handle, CURLOPT_INFILESIZE_LARGE, (curl_off_t)st.st_size);
+		printf("%d\n", curl_easy_perform(easy_handle));
+	} else {
+		puts("Unsupported protocol");
+		return -1;
+	}
 
 	if(!silent_flag)
 		putchar('\n');
 
-	puts(buffer);
-
-	curl_mime_free(mime);
 	curl_easy_cleanup(easy_handle);
 
 	free(buffer);
 	config_destroy(&runtime_config);
 	return 0;
+}
+
+int
+get_protocol(char *server)
+{
+	if(strstr(server, "http://") != NULL || strstr(server, "https://"))
+		return CURLPROTO_HTTP;
+	else if(strstr(server, "scp://") != NULL)
+		return CURLPROTO_SCP;
+	else
+		return -1;
 }
