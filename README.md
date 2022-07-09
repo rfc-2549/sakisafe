@@ -7,10 +7,8 @@
 * Written in perl
 * Can be used as pastebin
 * Or as a URL shorter
+* Easiy installation (just use fcgi)
 * Runs with CGI
-* Tor access ;)
-* If running OpenBSD, sakisafecli will use pledge()
-
 
 ## Installation:
 
@@ -25,6 +23,14 @@ sakisafecli is a command line interface for sakisafe servers (and
 other file upload services). It also supports file uploading via scp
 (ssh).
 
+## Features
+
+* Written in C so is fast.
+* HTTP and SCP support (FTP support is planned!)
+* Highly configurable
+* Lightweight
+* If using OpenBSD, it will run `pledge()` for security reasons.
+
 ## Installation
 
 ### Compilation
@@ -34,6 +40,8 @@ Clone the repo and run `make` (or `bmake` in linux systems)
 ### Repositories
 
 ![](https://repology.org/badge/vertical-allrepos/sakisafe.svg)
+
+
 
 # Donate
 
