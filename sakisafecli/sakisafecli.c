@@ -22,10 +22,10 @@ bool ipv6_flag = false, ipv4_flag = false, http_proxy_flag = false,
 
 char *http_proxy_url, *socks_proxy_url;
 char *ssh_key_path = NULL;
-config_t runtime_config;
 
 char *server = "https://lainsafe.delegao.moe";
 const char *path = ".cache/sakisafelinks";
+
 int
 main(int argc, char **argv)
 {
@@ -256,9 +256,8 @@ main(int argc, char **argv)
 	}
 
 	curl_easy_cleanup(easy_handle);
-
-	free(buffer);
 	config_destroy(&runtime_config);
+	free(buffer);
 	return 0;
 }
 

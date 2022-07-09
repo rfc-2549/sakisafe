@@ -28,12 +28,10 @@ print_config()
 
 	return;
 }
-
+config_t runtime_config;
 void
 parse_config_file(FILE *config)
 {
-
-	config_t runtime_config;
 
 	config_init(&runtime_config);
 	config_read(&runtime_config, config);
