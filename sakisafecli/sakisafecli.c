@@ -69,22 +69,16 @@ main(int argc, char **argv)
 	/* libcurl initialization */
 
 	CURL *easy_handle = curl_easy_init();
-	curl_mime *mime;
-	mime = curl_mime_init(easy_handle);
 
 	if(!easy_handle) {
 		fprintf(stderr, "Error initializing libcurl\n");
 		return -1;
-	}
-	if(!mime) {
-		fprintf(stderr, "Error initializing curl_mime\n");
 	}
 
 	if(argc == optind) {
 		print_usage();
 		free(buffer);
 		curl_easy_cleanup(easy_handle);
-		curl_mime_free(mime);
 		return -1;
 	}
 
@@ -200,7 +194,12 @@ main(int argc, char **argv)
 		curl_easy_setopt(
 			easy_handle, CURLOPT_IPRESOLVE, CURL_IPRESOLVE_WHATEVER);
 
-	/* Form parameters */
+	/* Common options for both HTTP and SCP transfers */
+
+	curl_easy_setopt(easy_handle, CURLOPT_NOPROGRESS, silent_flag);
+	curl_easy_setopt(easy_handle, CURLOPT_PROGRESSFUNCTION, progress);
+
+
 
 	/* File name */
 
@@ -211,6 +210,13 @@ main(int argc, char **argv)
 	/* Process HTTP uploads */
 
 	if(protocol == CURLPROTO_HTTP || protocol == CURLPROTO_HTTPS) {
+		curl_mime *mime;
+		mime = curl_mime_init(easy_handle);
+		curl_easy_setopt(easy_handle, CURLOPT_MIMEPOST, mime);
+		if(!mime) {
+			fprintf(stderr, "Error initializing curl_mime\n");
+		}
+
 		curl_mimepart *file_data;
 		file_data = curl_mime_addpart(mime);
 		char *filename = argv[optind];
@@ -223,10 +229,6 @@ main(int argc, char **argv)
 		if(paste_flag)
 			curl_mime_filename(file_data, "-");
 
-		curl_easy_setopt(easy_handle, CURLOPT_NOPROGRESS, silent_flag);
-		curl_easy_setopt(easy_handle, CURLOPT_PROGRESSFUNCTION, progress);
-
-		curl_easy_setopt(easy_handle, CURLOPT_MIMEPOST, mime);
 		curl_easy_perform(easy_handle);
 		if(!silent_flag)
 			putchar('\n');
@@ -244,8 +246,6 @@ main(int argc, char **argv)
 		stat(argv[optind], &st);
 		snprintf(path, 256, "%s/%s", server, filename);
 		curl_easy_setopt(easy_handle, CURLOPT_READDATA, fp);
-		curl_easy_setopt(easy_handle, CURLOPT_NOPROGRESS, silent_flag);
-		curl_easy_setopt(easy_handle, CURLOPT_PROGRESSFUNCTION, progress);
 		curl_easy_setopt(
 			easy_handle, CURLOPT_INFILESIZE_LARGE, (curl_off_t)st.st_size);
 		curl_easy_setopt(easy_handle, CURLOPT_URL, path);
