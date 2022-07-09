@@ -22,7 +22,8 @@
 # sakisafecli
 
 sakisafecli is a command line interface for sakisafe servers (and
-other file upload services).
+other file upload services). It also supports file uploading via scp
+(ssh).
 
 ## Installation
 
