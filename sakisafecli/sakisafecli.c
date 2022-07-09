@@ -8,6 +8,7 @@
 #include <unistd.h>
 #include <curl/curl.h>
 #include <sys/stat.h>
+#include <errno.h>
 
 #include "curl/easy.h"
 #include "options.h"
@@ -151,7 +152,9 @@ main(int argc, char **argv)
 	}
 
 	if(access(argv[optind], F_OK) && !paste_flag) {
-		fprintf(stderr, "Error opening file\n");
+		fprintf(stderr, "Error opening file: %s\n",
+			strerror(errno)
+			);
 		return -1;
 	}
 
@@ -178,8 +181,7 @@ main(int argc, char **argv)
 		curl_easy_setopt(easy_handle, CURLOPT_PROXY, socks_proxy_url);
 		curl_easy_setopt(
 			easy_handle, CURLOPT_PROXYTYPE, CURLPROXY_SOCKS5_HOSTNAME);
-	} else if(http_proxy_flag && ((protocol == CURLPROTO_HTTP) ||
-							(protocol == CURLPROTO_HTTPS))) {
+	} else if(http_proxy_flag && protocol == CURLPROTO_HTTP) {
 		curl_easy_setopt(easy_handle, CURLOPT_PROXY, http_proxy_url);
 		curl_easy_setopt(easy_handle, CURLOPT_PROXYTYPE, CURLPROXY_HTTP);
 	}
@@ -209,9 +211,10 @@ main(int argc, char **argv)
 
 	/* Process HTTP uploads */
 
-	if(protocol == CURLPROTO_HTTP || protocol == CURLPROTO_HTTPS) {
+	if(protocol == CURLPROTO_HTTP) {
 		curl_mime *mime;
 		mime = curl_mime_init(easy_handle);
+		
 		curl_easy_setopt(easy_handle, CURLOPT_MIMEPOST, mime);
 		if(!mime) {
 			fprintf(stderr, "Error initializing curl_mime\n");
@@ -240,16 +243,21 @@ main(int argc, char **argv)
 	else if(protocol == CURLPROTO_SCP) {
 		char path[256];
 		char *filename = argv[optind];
+		
 		curl_easy_setopt(easy_handle, CURLOPT_UPLOAD, true);
 		FILE *fp = fopen(filename, "r");
+		
 		struct stat st;
 		stat(argv[optind], &st);
 		snprintf(path, 256, "%s/%s", server, filename);
+		
 		curl_easy_setopt(easy_handle, CURLOPT_READDATA, fp);
 		curl_easy_setopt(
 			easy_handle, CURLOPT_INFILESIZE_LARGE, (curl_off_t)st.st_size);
+		
 		curl_easy_setopt(easy_handle, CURLOPT_URL, path);
 		curl_easy_perform(easy_handle);
+		putchar('\n');
 	} else {
 		puts("Unsupported protocol");
 		return -1;

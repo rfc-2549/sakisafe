@@ -19,7 +19,6 @@ print_usage()
 	return;
 }
 
-
 void
 print_help()
 {
