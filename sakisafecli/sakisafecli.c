@@ -152,9 +152,7 @@ main(int argc, char **argv)
 	}
 
 	if(access(argv[optind], F_OK) && !paste_flag) {
-		fprintf(stderr, "Error opening file: %s\n",
-			strerror(errno)
-			);
+		fprintf(stderr, "Error opening file: %s\n", strerror(errno));
 		return -1;
 	}
 
@@ -165,12 +163,6 @@ main(int argc, char **argv)
 	curl_easy_setopt(easy_handle, CURLOPT_URL, server);
 
 	int protocol = get_protocol(server);
-
-	/* If using SCP, set the ssh key */
-	if(protocol == CURLPROTO_SCP && ssh_key_path != NULL) {
-		curl_easy_setopt(
-			easy_handle, CURLOPT_SSH_PRIVATE_KEYFILE, ssh_key_path);
-	}
 
 	/* Proxy options */
 
@@ -201,8 +193,6 @@ main(int argc, char **argv)
 	curl_easy_setopt(easy_handle, CURLOPT_NOPROGRESS, silent_flag);
 	curl_easy_setopt(easy_handle, CURLOPT_PROGRESSFUNCTION, progress);
 
-
-
 	/* File name */
 
 	/* TODO: make it iterate on args so you can upload multiple files
@@ -214,7 +204,7 @@ main(int argc, char **argv)
 	if(protocol == CURLPROTO_HTTP) {
 		curl_mime *mime;
 		mime = curl_mime_init(easy_handle);
-		
+
 		curl_easy_setopt(easy_handle, CURLOPT_MIMEPOST, mime);
 		if(!mime) {
 			fprintf(stderr, "Error initializing curl_mime\n");
@@ -241,23 +231,32 @@ main(int argc, char **argv)
 	}
 	/* Process SCP uploads */
 	else if(protocol == CURLPROTO_SCP) {
+		curl_easy_setopt(
+			easy_handle, CURLOPT_SSH_PRIVATE_KEYFILE, ssh_key_path);
+
 		char path[256];
 		char *filename = argv[optind];
 		
 		curl_easy_setopt(easy_handle, CURLOPT_UPLOAD, true);
 		FILE *fp = fopen(filename, "r");
-		
+		if(fp == NULL) {
+			fprintf(stderr, "%s",strerror(errno));
+			exit(-1);
+		}
+
 		struct stat st;
 		stat(argv[optind], &st);
 		snprintf(path, 256, "%s/%s", server, filename);
-		
 		curl_easy_setopt(easy_handle, CURLOPT_READDATA, fp);
 		curl_easy_setopt(
 			easy_handle, CURLOPT_INFILESIZE_LARGE, (curl_off_t)st.st_size);
-		
-		curl_easy_setopt(easy_handle, CURLOPT_URL, path);
-		curl_easy_perform(easy_handle);
+
+		int ret = curl_easy_perform(easy_handle);
 		putchar('\n');
+		if(ret != 0) {
+			fprintf(stderr, "%i: %s\n", ret, curl_easy_strerror(ret));
+		}
+		
 	} else {
 		puts("Unsupported protocol");
 		return -1;
