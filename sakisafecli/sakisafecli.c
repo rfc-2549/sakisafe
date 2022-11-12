@@ -9,7 +9,9 @@
 #include <curl/curl.h>
 #include <sys/stat.h>
 #include <errno.h>
-
+#ifdef use_libbsd
+#include <bsd/string.h>
+#endif
 #include "curl/easy.h"
 #include "options.h"
 #include "config.h"
@@ -56,7 +58,7 @@ main(int argc, char **argv)
 			fclose(fp);
 		}
 	} else {
-#if defined(__OpenBSD__) || defined(__FreeBSD__)
+#if defined(__OpenBSD__) || defined(__FreeBSD__) || defined(use_libbsd)
 		strlcpy(config_location, sakisafeclirc_env, 512);
 #else /* Linux sucks! */
 		strncpy(config_location, sakisafeclirc_env, 512);
@@ -236,11 +238,11 @@ main(int argc, char **argv)
 
 		char path[256];
 		char *filename = argv[optind];
-		
+
 		curl_easy_setopt(easy_handle, CURLOPT_UPLOAD, true);
 		FILE *fp = fopen(filename, "r");
 		if(fp == NULL) {
-			fprintf(stderr, "%s",strerror(errno));
+			fprintf(stderr, "%s", strerror(errno));
 			exit(-1);
 		}
 
@@ -256,7 +258,7 @@ main(int argc, char **argv)
 		if(ret != 0) {
 			fprintf(stderr, "%i: %s\n", ret, curl_easy_strerror(ret));
 		}
-		
+
 	} else {
 		puts("Unsupported protocol");
 		return -1;
