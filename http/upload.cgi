@@ -1,108 +1,78 @@
 #!/usr/bin/perl
 # This file is part of sakisafe.
 
-# sakisafe is free software: you can redistribute it and/or modify
-# it under the terms of the GNU General Public License as published by
-# the Free Software Foundation, either version 3 of the License, or
-# (at your option) any later version.
+use Mojolicious::Lite -signatures;
+use Mojolicious::Routes::Pattern;
+plugin 'RenderFile';
+my $MAX_SIZE = 1024 * 1024 * 100;
 
-# sakisafe is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
+get '/' => 'index';
 
-# You should have received a copy of the GNU General Public License
-# along with sakisafe.  If not, see <https://www.gnu.org/licenses/>.
+get '/f/:dir/:name' => sub ($c) {
+    my $captures = $c->req->url;
+    $captures =~ s/^.//;
+    my $filerender = Mojolicious::Plugin::RenderFile->new;
+    $c->render_file( filepath => $captures );
+};
 
-use CGI;
-use CGI::Carp qw(fatalsToBrowser);
+app->max_request_size( 1024 * 1024 * 100 );
+my $dirname;
+post '/upload' => sub ($c) {
+    my $filedata = $c->param("file");
+    if ( $filedata->size > $MAX_SIZE ) {
+	   return $c->render(
+		  text   => "Max upload size: $MAX_SIZE",
+		  status => 400
+	   );
+    }
+    
+    # Generate random string for the directory
+    my @chars = ( '0' .. '9', 'a' .. 'Z' );
+    $dirname .= $chars[ rand @chars ] for 1 .. 5;
 
-my $q = CGI->new;
+    mkdir( "f/" . $dirname );
+    $filedata->move_to( "f/" . $dirname . "/" . $filedata->filename );
+    my $host = $c->req->url->to_abs->host;
+    $c->res->headers->header(
+	   'Location' => "http://$host/$dirname/" . $filedata->filename );
+    $c->render(
+	   text   => "Uploaded to http://$host/f/$dirname/" . $filedata->filename,
+	   status => 201,
+    );
+    $dirname = "";
 
-my $filename = $q->param('file');
-my $url = $q->param('url');
+};
 
-my $upload_dir = "files/";
+app->start;
 
-$size    = $ENV{CONTENT_LENGTH};
+__DATA__
 
-# Configuration
+@@ index.html.ep
 
-our $MAX_SIZE = 1024*1024*100;		    # Change for your size
-our $MAX_SIZE_MB = $MAX_SIZE / 1024 / 1024; # Don't change this
-
-our @not_allowed_extensions = qw(sh out exe);
-
-print $q->header();
-
-# do something better
-if ($url ne "") {
-	goto url_shorter;
-}
-
-if ($filename eq "" || $ENV{REQUEST_METHOD} eq "GET") {
-	print("What are you looking for?");
-	exit;
-}
-
-if ($filename) {
-	if ($size > $MAX_SIZE) {
-		print("Max size for a file is $MAX_SIZE_MB MBs");
-		exit;
-	}
-
-
-	my @chars = ("A"..."z","a"..."z");
-	my $dirname;
-	my $extension = $filename;
-
-	$dirname .= $chars[rand @chars] for 1..8;
-	$extension =~ s/.*\.//;
-	$filename .= ".notcgi" if $extension eq "cgi";
-
-	mkdir("$upload_dir/$dirname");
-	my $upload_filehandle = $q->upload("file");
-
-	# onion urls will be http
-	my $prot = length $ENV{HTTPS} ? "https" : "http";
-
-	my $allowed_extension = 1;
-
-	foreach (@not_allowed_extensions) {
-		if ($filename =~ /\.$_$/i) {
-			$allowed_extension = 0;
-			last;
-		}
-
-	}
-	if ($filename eq "-") {
-		$filename .= ".txt";  # for pastes
-	}
-	if ($allowed_extension) {
-
-		open(FILE,">$upload_dir/$dirname/$filename");
-		binmode(FILE);
-		while (<$upload_filehandle>) {
-			print FILE;
-		}
-		close FILE;
-		$filename =~ s/ /%20/g;
-
-		print $prot. "://" . $ENV{HTTP_HOST} . "/$upload_dir$dirname/$filename" . "\n";
-	} else {
-		print "The file extension .$extension is not allowed in this instance.";
-	}
-	exit;
-} elsif ($url != "" && !$filename) {
-   url_shorter:
-	my $template = "<meta http-equiv=\"Refresh\" content=\"0; url='$url'\"/>";
-	my @chars = ("A"..."z","a"..."z",1..9);
-	my $dirname;
-	$dirname .= $chars[rand @chars] for 1..4;
-	mkdir($dirname);
-	open(my $fh, ">$dirname/index.html");
-	print $fh $template;
-	my $prot = length $ENV{HTTPS} ? "https" : "http";
-	print $prot. "://" . $ENV{HTTP_HOST} . "/$dirname" . "\n";
-	exit;
-}
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>sakisafe</title>
+		<link rel="stylesheet" type="text/css" href="index.css"/>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	</head>
+	<body>
+		<h1>sakisafe</h1>
+		<h2>shitless file upload, pastebin and url shorter</h2>
+		<img src="saki.png"/>
+		<h2>USAGE</h2>
+		<p>POST a file:</p>
+		<code>curl -F 'file=@yourfile.png' $SITE_URL</code>
+		<p>Shorten URL:</p>
+		<code>curl -F 'url=https://example.org' $SITE_URL</code>
+		<p>Post your text directly</p>
+		<code>curl -F 'file=@-' $SITE_URL</code>
+		<div class="left">
+			<h2>Or just upload a file here</h2>
+			<form ENCTYPE='multipart/form-data' method='post' action='/upload'>
+				<input type='file' name='file' size='30'/>
+				<input type='submit' value='upload'/>
+			</form>
+		</div>
+	</body>
+</html>
