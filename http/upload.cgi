@@ -3,21 +3,14 @@
 
 use Mojolicious::Lite -signatures;
 use Mojolicious::Routes::Pattern;
+use v5.36;
 plugin 'RenderFile';
 my $MAX_SIZE = 1024 * 1024 * 100;
 
-get '/' => 'index';
-
-get '/f/:dir/:name' => sub ($c) {
-    my $captures = $c->req->url;
-    $captures =~ s/^.//;
-    my $filerender = Mojolicious::Plugin::RenderFile->new;
-    $c->render_file( filepath => $captures );
-};
-
-app->max_request_size( 1024 * 1024 * 100 );
 my $dirname;
-post '/upload' => sub ($c) {
+
+sub handle_file {
+    my $c        = shift;
     my $filedata = $c->param("file");
     if ( $filedata->size > $MAX_SIZE ) {
 	   return $c->render(
@@ -25,7 +18,7 @@ post '/upload' => sub ($c) {
 		  status => 400
 	   );
     }
-    
+
     # Generate random string for the directory
     my @chars = ( '0' .. '9', 'a' .. 'Z' );
     $dirname .= $chars[ rand @chars ] for 1 .. 5;
@@ -41,7 +34,21 @@ post '/upload' => sub ($c) {
     );
     $dirname = "";
 
+}
+
+get '/' => 'index';
+post '/' => sub ($c) {handle_file($c)};
+
+get '/f/:dir/:name' => sub ($c) {
+    my $captures = $c->req->url;
+    $captures =~ s/^.//;
+    my $filerender = Mojolicious::Plugin::RenderFile->new;
+    $c->render_file( filepath => $captures );
 };
+
+app->max_request_size( 1024 * 1024 * 100 );
+
+post '/upload' => sub ($c) {handle_file($c)};
 
 app->start;
 
