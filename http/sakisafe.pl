@@ -5,9 +5,11 @@ use Mojolicious::Lite -signatures;
 use Mojolicious::Routes::Pattern;
 use v5.36;
 plugin 'RenderFile';
+
 my $MAX_SIZE = 1024 * 1024 * 100;
 
 my $dirname;
+my $host;
 
 sub handle_file {
     my $c        = shift;
@@ -37,7 +39,9 @@ sub handle_file {
 }
 
 get '/' => 'index';
-post '/' => sub ($c) {handle_file($c)};
+post '/' => sub ($c) { handle_file($c) };
+
+# Allow files to be downloaded.
 
 get '/f/:dir/:name' => sub ($c) {
     my $captures = $c->req->url;
@@ -48,14 +52,13 @@ get '/f/:dir/:name' => sub ($c) {
 
 app->max_request_size( 1024 * 1024 * 100 );
 
-post '/upload' => sub ($c) {handle_file($c)};
+post '/upload' => sub ($c) { handle_file($c) };
 
 app->start;
 
 __DATA__
 
 @@ index.html.ep
-
 <!DOCTYPE html>
 <html lang="en">
 	<head>
@@ -64,16 +67,16 @@ __DATA__
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	</head>
 	<body>
+	<center>
 		<h1>sakisafe</h1>
 		<h2>shitless file upload, pastebin and url shorter</h2>
 		<img src="saki.png"/>
 		<h2>USAGE</h2>
 		<p>POST a file:</p>
-		<code>curl -F 'file=@yourfile.png' $SITE_URL</code>
-		<p>Shorten URL:</p>
-		<code>curl -F 'url=https://example.org' $SITE_URL</code>
+		<code>curl -F 'file=@yourfile.png' <%= $c->req->url->to_abs->host; %></code>
 		<p>Post your text directly</p>
-		<code>curl -F 'file=@-' $SITE_URL</code>
+		<code>curl -F 'file=@-' <%= $c->req->url->to_abs->host; %></code>
+      </center>
 		<div class="left">
 			<h2>Or just upload a file here</h2>
 			<form ENCTYPE='multipart/form-data' method='post' action='/upload'>
