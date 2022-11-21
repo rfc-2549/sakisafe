@@ -24,14 +24,15 @@ sub handle_file {
     # Generate random string for the directory
     my @chars = ( '0' .. '9', 'a' .. 'Z' );
     $dirname .= $chars[ rand @chars ] for 1 .. 5;
-
+    my $filename = $filedata->filename;
     mkdir( "f/" . $dirname );
-    $filedata->move_to( "f/" . $dirname . "/" . $filedata->filename );
+    $filename .= ".txt" if $filename eq "-";
+    $filedata->move_to( "f/" . $dirname . "/" . $filename );
     my $host = $c->req->url->to_abs->host;
     $c->res->headers->header(
 	   'Location' => "http://$host/$dirname/" . $filedata->filename );
     $c->render(
-	   text   => "Uploaded to http://$host/f/$dirname/" . $filedata->filename,
+	   text   => "http://$host/f/$dirname/" . $filename,
 	   status => 201,
     );
     $dirname = "";
