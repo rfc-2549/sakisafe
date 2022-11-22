@@ -3,41 +3,63 @@
 
 use Mojolicious::Lite -signatures;
 use Mojolicious::Routes::Pattern;
+
 use v5.36;
 plugin 'RenderFile';
 
 my $MAX_SIZE = 1024 * 1024 * 100;
 
+my @BANNED = qw(); # Add banned IP addresses here
 my $dirname;
 my $host;
 
-sub handle_file {
-    my $c        = shift;
-    my $filedata = $c->param("file");
-    if ( $filedata->size > $MAX_SIZE ) {
-	   return $c->render(
-		  text   => "Max upload size: $MAX_SIZE",
-		  status => 400
-	   );
-    }
+# Function to handle file uploads
 
-    # Generate random string for the directory
-    my @chars = ( '0' .. '9', 'a' .. 'Z' );
-    $dirname .= $chars[ rand @chars ] for 1 .. 5;
-    my $filename = $filedata->filename;
-    mkdir( "f/" . $dirname );
-    $filename .= ".txt" if $filename eq "-";
-    $filedata->move_to( "f/" . $dirname . "/" . $filename );
-    my $host = $c->req->url->to_abs->host;
-    $c->res->headers->header(
-	   'Location' => "http://$host/$dirname/" . $filedata->filename );
-    $c->render(
-	   text   => "http://$host/f/$dirname/" . $filename,
-	   status => 201,
-    );
-    $dirname = "";
+sub logger ( $level, $address, $message ) {
+	open( my $fh, ">>", "sakisafe.log" );
+	printf( $fh "[%s]: %s has uploaded file %s\n", $level, $address, $message );
+	close($fh);
+}
+
+sub handle_file {
+	my $c        = shift;
+	my $filedata = $c->param("file");
+	if ( $filedata->size > $MAX_SIZE ) {
+		return $c->render(
+			text   => "Max upload size: $MAX_SIZE",
+			status => 400
+		    );
+	}
+	if ( $c->tx->remote_address ~~ @BANNED ) {
+		$c->render(
+			text =>
+			"Hi! Seems like the server admin added your IP address to the banned IP array." .
+			"As the developer of sakisafe, I can't do anything.",
+			status => 403
+		    );
+		return;
+	}
+
+	# Generate random string for the directory
+	my @chars = ( '0' .. '9', 'a' .. 'Z' );
+	$dirname .= $chars[ rand @chars ] for 1 .. 5;
+	my $filename = $filedata->filename;
+	mkdir( "f/" . $dirname );
+	$filename .= ".txt" if $filename eq "-";
+	$filedata->move_to( "f/" . $dirname . "/" . $filename );
+	my $host = $c->req->url->to_abs->host;
+	$c->res->headers->header(
+		'Location' => "http://$host/$dirname/" . $filename );
+	$c->render(
+		text   => "http://$host/f/$dirname/" . $filename,
+		status => 201,
+	    );
+	logger( "INFO", $c->tx->remote_address, $dirname . "/" . $filename );
+	$dirname = "";
 
 }
+
+# Function to log uploaded files
 
 get '/' => 'index';
 post '/' => sub ($c) { handle_file($c) };
@@ -45,10 +67,10 @@ post '/' => sub ($c) { handle_file($c) };
 # Allow files to be downloaded.
 
 get '/f/:dir/:name' => sub ($c) {
-    my $captures = $c->req->url;
-    $captures =~ s/^.//;
-    my $filerender = Mojolicious::Plugin::RenderFile->new;
-    $c->render_file( filepath => $captures );
+	my $captures = $c->req->url;
+	$captures =~ s/^.//;
+	my $filerender = Mojolicious::Plugin::RenderFile->new;
+	$c->render_file( filepath => $captures );
 };
 
 app->max_request_size( 1024 * 1024 * 100 );
