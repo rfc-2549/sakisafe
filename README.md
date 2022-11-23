@@ -6,16 +6,46 @@
 
 * Written in perl
 * Can be used as pastebin
-* Or as a URL shorter
-* Easiy installation (just use fcgi)
-* Runs with CGI
+* Easy installation (just a simple daemon and use a reverse proxy)
 
-## Installation:
+1. install the dependencies using `cpan`:
 
-1. Configure your webserver to run CGI
-2. If running nginx, set `client_max_body_size` to the max size of
-   the file
-2. There you go.
+~~~
+cpan -i Mojolicious::Lite Mojolicious::Routes::Pattern Mojoliciuos::Plugin::RenderFile
+~~~
+
+2. Clone the repo and start the daemon:
+
+~~~
+git clone https://git.suragu.net/dudemanweed/sakisafe
+cd sakisafe/http
+./sakisafe.pl daemon -m production
+~~~
+
+3. Create a 'f' directory in the directory sakisafe will run with
+`mkdir f`. Make sure that the user which will run sakisafe.pl can
+write in that directory.
+
+By default, sakisafe will bind in 127.0.0.1 port 3000. Because that's
+the default bind Mojolicious uses.
+
+4. Create a proxy rule in nginx configuration (If you're using another
+HTTP server, you're on your own.)
+
+~~~conf
+server {
+	  server_name sakisafe.whatever.tld;
+	  listen 443 ssl;
+
+	  # ssl configuration here...
+
+	  location / {
+	  		 proxy_pass http://127.0.0.1:3000$request_uri;
+	  }
+}
+~~~
+
+And restart nginx. Going to `sakisafe.whatever.tld` should work.
 
 # sakisafecli
 
