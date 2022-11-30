@@ -37,7 +37,7 @@ server {
 	  server_name sakisafe.whatever.tld;
 	  listen 443 ssl;
 
-	  # ssl configuration here...
+	  # ssl configuration here
 
 	  location / {
 	  		 proxy_pass http://127.0.0.1:3000$request_uri;
@@ -56,7 +56,7 @@ other file upload services). It also supports file uploading via scp
 ## Features
 
 * Written in C so is fast.
-* HTTP and SCP support (FTP support is planned!)
+* HTTP and SCP support (FTP support is planned)
 * Highly configurable
 * Lightweight
 * If using OpenBSD, it will run `pledge()` for security reasons.
@@ -71,7 +71,9 @@ Clone the repo and run `make` (or `bmake` in linux systems)
 
 ![](https://repology.org/badge/vertical-allrepos/sakisafe.svg)
 
+# Contributing
 
+Just create a pull request in GitHub or send a diff file.
 
 # Donate
 
