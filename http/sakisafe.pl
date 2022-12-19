@@ -96,9 +96,9 @@ __DATA__
 		<img src="saki.png"/>
 		<h2>USAGE</h2>
 		<p>POST a file:</p>
-		<code>curl -F 'file=@yourfile.png' <%= $c->req->url->to_abs->host; %></code>
+		<code>curl -F 'file=@yourfile.png' https://<%= $c->req->url->to_abs->host; %></code>
 		<p>Post your text directly</p>
-		<code>curl -F 'file=@-' <%= $c->req->url->to_abs->host; %></code>
+		<code>curl -F 'file=@-' https://<%= $c->req->url->to_abs->host; %></code>
       </center>
 		<div class="left">
 			<h2>Or just upload a file here</h2>
