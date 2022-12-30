@@ -3,9 +3,11 @@
 
 use Mojolicious::Lite -signatures;
 use Mojolicious::Routes::Pattern;
-
+use List::MoreUtils qw(any uniq);
+use MIME::Types;
 use v5.36;
 plugin 'RenderFile';
+
 
 my $MAX_SIZE = 1024 * 1024 * 100;
 
@@ -30,7 +32,7 @@ sub handle_file {
 			status => 400
 		    );
 	}
-	if ( $c->tx->remote_address ~~ @BANNED ) {
+	if ( any { /$c->tx->remote_address/ } uniq @BANNED ) {
 		$c->render(
 			text =>
 			"Hi! Seems like the server admin added your IP address to the banned IP array." .
@@ -70,7 +72,12 @@ get '/f/:dir/:name' => sub ($c) {
 	my $captures = $c->req->url;
 	$captures =~ s/^.//;
 	my $filerender = Mojolicious::Plugin::RenderFile->new;
-	$c->render_file( filepath => $captures );
+	my ($ext) = $captures =~ /(\.[^.]+)$/;
+	print $ext;
+	$c->render_file( filepath => $captures,
+				  format   => $ext,
+				  content_disposition => 'inline'
+				);
 };
 
 app->max_request_size( 1024 * 1024 * 100 );
