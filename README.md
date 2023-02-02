@@ -33,6 +33,7 @@ the default bind Mojolicious uses.
 HTTP server, you're on your own.)
 
 ~~~conf
+
 server {
 	  server_name sakisafe.whatever.tld;
 	  listen 443 ssl;
@@ -40,7 +41,10 @@ server {
 	  # ssl configuration here
 
 	  location / {
-	  		 proxy_pass http://127.0.0.1:3000$request_uri;
+			 proxy_set_header    Host            $host;
+			 proxy_set_header    X-Real-IP       $remote_addr;
+    			 proxy_set_header    X-Forwarded-for $remote_addr;
+			 proxy_pass http://127.0.0.1:3000$request_uri;
 	  }
 }
 ~~~
