@@ -17,7 +17,7 @@ cpan -i Mojolicious::Lite Mojolicious::Routes::Pattern Mojoliciuos::Plugin::Rend
 2. Clone the repo and start the daemon:
 
 ~~~
-git clone https://git.suragu.net/dudemanweed/sakisafe
+git clone https://git.suragu.net/sosa/sakisafe
 cd sakisafe/http
 ./sakisafe.pl daemon -m production
 ~~~
