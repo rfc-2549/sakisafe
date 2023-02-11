@@ -1,13 +1,19 @@
 #!/usr/bin/perl
 # This file is part of sakisafe.
 
+use if $^O eq "openbsd", OpenBSD::Pledge, qw(pledge);
 use Mojolicious::Lite -signatures;
 use Mojolicious::Routes::Pattern;
 use List::MoreUtils qw(any uniq);
 use MIME::Types;
-use v5.36;
+use experimental 'signatures';
 plugin 'RenderFile';
 
+
+my $openbsd = 0;
+$openbsd = 1 if $^O eq "openbsd";
+pledge("stdio cpath rpath wpath inet flock fattr") if $openbsd;
+use strict;
 
 my $MAX_SIZE = 1024 * 1024 * 100;
 
@@ -72,8 +78,8 @@ get '/f/:dir/:name' => sub ($c) {
 	my $captures = $c->req->url;
 	$captures =~ s/^.//;
 	my $filerender = Mojolicious::Plugin::RenderFile->new;
-	my ($ext) = $captures =~ /(\.[^.]+)$/;
-	print $ext;
+	my $ext = $captures;
+	$ext =~ s/.*\.//;
 	$c->render_file( filepath => $captures,
 				  format   => $ext,
 				  content_disposition => 'inline'
