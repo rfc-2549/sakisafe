@@ -96,45 +96,48 @@ get '/f/:dir/#name' => sub ($c) {
 				  content_disposition => 'inline'
 				)
 
-};
-	app->max_request_size( 1024 * 1024 * 100 );
+}
+;
+app->max_request_size( 1024 * 1024 * 100 );
 
-	post '/upload' => sub ($c) { handle_file($c) };
+post '/upload' => sub ($c) { handle_file($c) };
 
-	app->start;
+app->start;
 
-	# Index template
+# Index template
 
-	#By default Mojolicious gets the "directory root" from the "public"
-	# directory, so the css and the favicon from the "public" directory,
-	# in the root of this repo.
-	__DATA__
+#By default Mojolicious gets the "directory root" from the "public"
+# directory, so the css and the favicon from the "public" directory,
+# in the root of this repo.
+
+__DATA__
 
 @@ index.html.ep
-<!DOCTYPE html>
-<html lang="en">
-<head>
-<title>sakisafe</title>
-<link rel="stylesheet" type="text/css" href="index.css"/>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
-<body>
-<center>
-<h1>sakisafe</h1>
-<h2>shitless file upload, pastebin and url shorter</h2>
-<img src="saki.png"/>
-<h2>USAGE</h2>
-<p>POST a file:</p>
-<code>curl -F 'file=@yourfile.png' https://<%= $c->req->url->to_abs->host; %></code>
-<p>Post your text directly</p>
-<code>curl -F 'file=@-' https://<%= $c->req->url->to_abs->host; %></code>
-</center>
-<div class="left">
-<h2>Or just upload a file here</h2>
-<form ENCTYPE='multipart/form-data' method='post' action='/upload'>
-<input type='file' name='file' size='30'/>
-<input type='submit' value='upload'/>
-</form>
-</div>
-</body>
-</html>
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+  <title>sakisafe</title>
+  <link rel="stylesheet" type="text/css" href="index.css"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <body>
+  <center>
+  <h1>sakisafe</h1>
+  <h2>shitless file upload, pastebin and url shorter</h2>
+  <img src="saki.png"/>
+  <h2>USAGE</h2>
+  <p>POST a file:</p>
+  <code>curl -F 'file=@yourfile.png' https://<%= $c->req->url->to_abs->host; %></code>
+  <p>Post your text directly</p>
+  <code>curl -F 'file=@-' https://<%= $c->req->url->to_abs->host; %></code>
+  </center>
+  <div class="left">
+  <h2>Or just upload a file here</h2>
+  <form ENCTYPE='multipart/form-data' method='post' action='/upload'>
+  <input type='file' name='file' size='30'/>
+  <input type='submit' value='upload'/>
+  </form>
+  </div>
+  </body>
+  </html>
+  
