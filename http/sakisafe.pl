@@ -6,10 +6,12 @@ use Mojolicious::Lite -signatures;
 use Mojolicious::Routes::Pattern;
 use List::MoreUtils qw(any uniq);
 use Carp;
+use Term::ANSIColor;
 use English;
 use MIME::Types;
 use experimental 'signatures';
 plugin 'RenderFile';
+
 
 
 my $openbsd = 0;
@@ -54,7 +56,7 @@ sub handle_file {
 	my @chars = ( '0' .. '9', 'a' .. 'Z' );
 	$dirname .= $chars[ rand @chars ] for 1 .. 5;
 	my $filename = $filedata->filename;
-	carp "sakisafe warning: could not create directory: $ERRNO" unless
+	carp(color("bold yellow"), "sakisafe warning: could not create directory: $ERRNO", color("reset")) unless
 	  mkdir( "f/" . $dirname );
 	$filename .= ".txt" if $filename eq "-";
 
@@ -84,7 +86,7 @@ get '/f/:dir/:name' => sub ($c) {
 	my $filerender = Mojolicious::Plugin::RenderFile->new;
 	my $ext = $captures;
 	$ext =~ s/.*\.//;
-	carp "sakisafe warning: could not get file: $ERRNO" unless
+	carp(color("bold yellow"), "sakisafe warning: could not get file: $ERRNO", color("reset")) unless
 	  $c->render_file( filepath => $captures,
 				    format   => $ext,
 				    content_disposition => 'inline'
