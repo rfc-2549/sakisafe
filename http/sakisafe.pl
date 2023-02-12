@@ -131,6 +131,7 @@ __DATA__
   <p>Post your text directly</p>
   <code>curl -F 'file=@-' https://<%= $c->req->url->to_abs->host; %></code>
   </center>
+  <p>Running sakisafe 2.4.0</p>
   <div class="left">
   <h2>Or just upload a file here</h2>
   <form ENCTYPE='multipart/form-data' method='post' action='/upload'>
