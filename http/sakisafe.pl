@@ -5,6 +5,8 @@ use if $^O eq "openbsd", OpenBSD::Pledge, qw(pledge);
 use Mojolicious::Lite -signatures;
 use Mojolicious::Routes::Pattern;
 use List::MoreUtils qw(any uniq);
+use Carp;
+use English;
 use MIME::Types;
 use experimental 'signatures';
 plugin 'RenderFile';
@@ -52,8 +54,10 @@ sub handle_file {
 	my @chars = ( '0' .. '9', 'a' .. 'Z' );
 	$dirname .= $chars[ rand @chars ] for 1 .. 5;
 	my $filename = $filedata->filename;
-	mkdir( "f/" . $dirname );
+	carp "sakisafe warning: could not create directory: $ERRNO" unless
+	  mkdir( "f/" . $dirname );
 	$filename .= ".txt" if $filename eq "-";
+
 	$filedata->move_to( "f/" . $dirname . "/" . $filename );
 	my $host = $c->req->url->to_abs->host;
 	$c->res->headers->header(
@@ -80,10 +84,11 @@ get '/f/:dir/:name' => sub ($c) {
 	my $filerender = Mojolicious::Plugin::RenderFile->new;
 	my $ext = $captures;
 	$ext =~ s/.*\.//;
-	$c->render_file( filepath => $captures,
-				  format   => $ext,
-				  content_disposition => 'inline'
-				);
+	carp "sakisafe warning: could not get file: $ERRNO" unless
+	  $c->render_file( filepath => $captures,
+				    format   => $ext,
+				    content_disposition => 'inline'
+				  );
 };
 
 app->max_request_size( 1024 * 1024 * 100 );
@@ -92,6 +97,11 @@ post '/upload' => sub ($c) { handle_file($c) };
 
 app->start;
 
+# Index template
+
+#By default Mojolicious gets the "directory root" from the "public"
+# directory, so the css and the favicon from the "public" directory,
+# in the root of this repo.
 __DATA__
 
 @@ index.html.ep
