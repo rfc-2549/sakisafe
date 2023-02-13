@@ -14,17 +14,18 @@ use experimental 'signatures';
 use feature 'say';
 plugin 'RenderFile';
 
-
-
+# OpenBSD promises.
 my $openbsd = 0;
 $openbsd = 1 if $^O eq "openbsd";
 pledge("stdio cpath rpath wpath inet flock fattr") if $openbsd;
+
+# 100 MBs
 
 my $MAX_SIZE = 1024 * 1024 * 100;
 
 my @BANNED = qw();			  # Add banned IP addresses here
 my $dirname;
-my $host;
+my $link;
 
 mkdir "f";
 
@@ -48,8 +49,8 @@ sub handle_file {
 	if ( List::MoreUtils::any { /$c->tx->remote_address/ } uniq @BANNED ) {
 		$c->render(
 				 text =>
-				 "Hi! Seems like the server admin added your IP address to the banned IP array." .
-				 "As the developer of sakisafe, I can't do anything.",
+				 "Hi! Seems like the server admin added your IP address to the banned IP array."
+				 . "As the developer of sakisafe, I can't do anything.",
 				 status => 403
 				);
 		return;
@@ -59,21 +60,41 @@ sub handle_file {
 	my @chars = ( '0' .. '9', 'a' .. 'Z' );
 	$dirname .= $chars[ rand @chars ] for 1 .. 5;
 	my $filename = $filedata->filename;
-	carp(color("bold yellow"), "sakisafe warning: could not create directory: $ERRNO", color("reset")) unless
-	  mkdir( "f/" . $dirname );
+	carp( color("bold yellow"),
+		 "sakisafe warning: could not create directory: $ERRNO",
+		 color("reset") )
+	  unless mkdir( "f/" . $dirname );
 	$filename .= ".txt" if $filename eq "-";
-
-	$filedata->move_to( "f/" . $dirname . "/" . $filename );
+    
+	# TODO: get whether the server is http or https
+	# There's a CGI ENV variable for that.
 	my $host = $c->req->url->to_abs->host;
+     my $ua = $c->req->headers->user_agent;
+	$filedata->move_to( "f/" . $dirname . "/" . $filename );
+	$link = "http://$host/f/$dirname/$filename";
+	$c->stash(link => $link, host => $host, dirname => $dirname);
+    
+
 	$c->res->headers->header(
-						'Location' => "http://$host/$dirname/" . $filename );
-	$c->render(
-			 text   => "http://$host/f/$dirname/" . $filename,
-			 status => 201,
-			);
+						'Location' => "$link" . $filename );
+
+	# Only give the link to curl, html template for others.
+	
+	if($ua =~ m/curl/) {
+		$c->render(
+				 text => $link . "\n",
+				 status => 201,
+				);
+
+		$dirname = "";
+	} else {
+		$c->render(
+				 template => 'file',
+				 status => 201,
+				);
+	}
 	logger( "INFO", $c->tx->remote_address, $dirname . "/" . $filename );
 	$dirname = "";
-
 }
 
 # Function to log uploaded files
@@ -84,17 +105,19 @@ post '/' => sub ($c) { handle_file($c) };
 # Allow files to be downloaded.
 
 get '/f/:dir/#name' => sub ($c) {
-	my $dir =  $c->param("dir");
-	my $file =  $c->param("name");
-	my $ext = $file;
+	my $dir  = $c->param("dir");
+	my $file = $c->param("name");
+	my $ext  = $file;
 	$ext =~ s/.*\.//;
-	my $path = "f/".$dir . "/" . $file;
+	my $path = "f/" . $dir . "/" . $file;
+
 	#carp "sakisafe warning: could not get file: $ERRNO" unless
-	$c->render(text => "file not found", status => 404) unless -e $path;
-	$c->render_file( filepath => $path,
-				  format   => $ext,
-				  content_disposition => 'inline'
-				)
+	$c->render( text => "file not found", status => 404 ) unless -e $path;
+	$c->render_file(
+				 filepath            => $path,
+				 format              => $ext,
+				 content_disposition => 'inline'
+				);
 
 }
 ;
@@ -110,7 +133,32 @@ app->start;
 # directory, so the css and the favicon from the "public" directory,
 # in the root of this repo.
 
+# Not sure why I have to do this filthy hack, could not get Mojolicious
+# to get the template here. So a TODO is to fix this.
+
 __DATA__
+@@ file.html.ep
+  <!DOCTYPE html>
+  <html lang="en">
+  <head>
+  <title>sakisafe</title>
+  <link rel="stylesheet" type="text/css" href="index.css"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <body>
+  <center>
+  <h1>sakisafe</h1>
+  <h2>shitless file upload, pastebin and url shorter</h2>
+  <img src="saki.png"/>
+  <h2>LINK</h2>
+  <code><%= $link %></code>
+  </center>
+  <p>Running sakisafe 2.4.0</p>
+  </body>
+  </html>
+
+  __END__
+
 
 @@ index.html.ep
   <!DOCTYPE html>
@@ -141,4 +189,4 @@ __DATA__
   </div>
   </body>
   </html>
-  
+
