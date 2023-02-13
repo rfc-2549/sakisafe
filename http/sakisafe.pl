@@ -22,7 +22,7 @@ pledge("stdio cpath rpath wpath inet flock fattr") if $openbsd;
 
 my $MAX_SIZE = 1024 * 1024 * 100;
 my @BANNED = qw();			  # Add banned IP addresses here
-my $RANDOMIZE_FILENAME = 1;
+my $RANDOMIZE_FILENAME = 0;
 
 my $dirname;
 my $filename = "";
@@ -61,7 +61,7 @@ sub handle_file {
 	my @chars = ( '0' .. '9', 'a' .. 'Z' );
 	$dirname .= $chars[ rand @chars ] for 1 .. 5;
 	if ( $RANDOMIZE_FILENAME eq 1 ) {
-		$filename .= $chars [ rand @chars ] for 1 .. 5;
+		$filename .= $chars[ rand @chars ] for 1 .. 5;
 		# TODO: add extension at the end of the filename, fix the multiplication of the chars every time the code runs
 	} else {
 		$filename = $filedata->filename;
