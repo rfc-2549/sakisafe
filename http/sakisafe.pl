@@ -64,7 +64,7 @@ sub handle_file {
 	my $filename = $filedata->filename;
 	my $enc = encode( "UTF-8", $filename );
 	$filename = $enc;
-	if ( $RANDOMIZE_FILENAME = 1 ) {
+	if ( $RANDOMIZE_FILENAME == 1 ) {
 		my $extension = $filename;
 		$extension =~ s/.*\.//;
 		$filename = "";
