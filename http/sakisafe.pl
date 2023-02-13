@@ -23,7 +23,7 @@ pledge("stdio cpath rpath wpath inet flock fattr") if $openbsd;
 
 my $MAX_SIZE = 1024 * 1024 * 100;
 my @BANNED = qw();			  # Add banned IP addresses here
-my $RANDOMIZE_FILENAME = 1;   # Enable/Disable filename randomization
+my $RANDOMIZE_FILENAME = 0;   # Enable/Disable filename randomization
 
 my $dirname;
 my $host;
