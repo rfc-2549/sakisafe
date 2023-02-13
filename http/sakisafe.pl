@@ -12,6 +12,7 @@ use MIME::Types;
 use warnings;
 use experimental 'signatures';
 use feature 'say';
+use Encode qw(decode encode);
 plugin 'RenderFile';
 
 # OpenBSD promises.
@@ -22,8 +23,9 @@ pledge("stdio cpath rpath wpath inet flock fattr") if $openbsd;
 # 100 MBs
 
 my $MAX_SIZE = 1024 * 1024 * 100;
-
 my @BANNED = qw();			  # Add banned IP addresses here
+my $RANDOMIZE_FILENAME = 0;   # Enable/disable randomization
+
 my $dirname;
 my $link;
 
@@ -60,6 +62,15 @@ sub handle_file {
 	my @chars = ( '0' .. '9', 'a' .. 'Z' );
 	$dirname .= $chars[ rand @chars ] for 1 .. 5;
 	my $filename = $filedata->filename;
+	my $enc = encode( "UTF-8", $filename );
+	$filename = $enc;
+	if ( $RANDOMIZE_FILENAME = 1 ) {
+		my $extension = $filename;
+		$extension =~ s/.*\.//;
+		$filename = "";
+		$filename .= $chars[ rand @chars ] for 1 .. 5;
+		$filename = $filename . "." . $extension;
+	}
 	carp( color("bold yellow"),
 		 "sakisafe warning: could not create directory: $ERRNO",
 		 color("reset") )
