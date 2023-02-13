@@ -11,7 +11,7 @@
 1. install the dependencies using `cpan`:
 
 ~~~
-cpan -i Mojolicious::Lite Mojolicious::Routes::Pattern Mojoliciuos::Plugin::RenderFile
+cpan -i Mojolicious::Lite Mojolicious::Routes::Pattern Mojolicious::Plugin::RenderFile List::MoreUtils MIME::Types
 ~~~
 
 2. Clone the repo and start the daemon:
@@ -22,14 +22,10 @@ cd sakisafe/http
 ./sakisafe.pl daemon -m production
 ~~~
 
-3. Create a 'f' directory in the directory sakisafe will run with
-`mkdir f`. Make sure that the user which will run sakisafe.pl can
-write in that directory.
-
 By default, sakisafe will bind in 127.0.0.1 port 3000. Because that's
 the default bind Mojolicious uses.
 
-4. Create a proxy rule in nginx configuration (If you're using another
+3. Create a proxy rule in nginx configuration (If you're using another
 HTTP server, you're on your own.)
 
 ~~~conf
@@ -41,10 +37,10 @@ server {
 	  # ssl configuration here
 
 	  location / {
-			 proxy_set_header    Host            $host;
-			 proxy_set_header    X-Real-IP       $remote_addr;
-    			 proxy_set_header    X-Forwarded-for $remote_addr;
-			 proxy_pass http://127.0.0.1:3000$request_uri;
+	  		   proxy_set_header    Host            $host;
+			   proxy_set_header    X-Real-IP       $remote_addr;
+			   proxy_set_header    X-Forwarded-for $remote_addr;
+			   proxy_pass http://127.0.0.1:3000$request_uri;
 	  }
 }
 ~~~
