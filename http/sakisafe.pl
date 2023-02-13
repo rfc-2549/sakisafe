@@ -21,9 +21,11 @@ $openbsd = 1 if $^O eq "openbsd";
 pledge("stdio cpath rpath wpath inet flock fattr") if $openbsd;
 
 my $MAX_SIZE = 1024 * 1024 * 100;
-
 my @BANNED = qw();			  # Add banned IP addresses here
+my $RANDOMIZE_FILENAME = 1;
+
 my $dirname;
+my $filename = "";
 my $host;
 
 mkdir "f";
@@ -58,7 +60,12 @@ sub handle_file {
 	# Generate random string for the directory
 	my @chars = ( '0' .. '9', 'a' .. 'Z' );
 	$dirname .= $chars[ rand @chars ] for 1 .. 5;
-	my $filename = $filedata->filename;
+	if ( $RANDOMIZE_FILENAME eq 1 ) {
+		$filename .= $chars [ rand @chars ] for 1 .. 5;
+		# TODO: add extension at the end of the filename, fix the multiplication of the chars every time the code runs
+	} else {
+		$filename = $filedata->filename;
+	}
 	carp(color("bold yellow"), "sakisafe warning: could not create directory: $ERRNO", color("reset")) unless
 	  mkdir( "f/" . $dirname );
 	$filename .= ".txt" if $filename eq "-";
@@ -123,7 +130,7 @@ __DATA__
   <body>
   <center>
   <h1>sakisafe</h1>
-  <h2>shitless file upload, pastebin and url shorter</h2>
+  <h2>shitless file upload, pastebin and url shortener</h2>
   <img src="saki.png"/>
   <h2>USAGE</h2>
   <p>POST a file:</p>
