@@ -9,11 +9,12 @@ use Carp;
 use Term::ANSIColor;
 use English;
 use MIME::Types;
+use File::Basename;
 use warnings;
 use experimental 'signatures';
 use feature 'say';
+use Encode qw(decode encode);
 plugin 'RenderFile';
-
 
 
 my $openbsd = 0;
@@ -22,10 +23,9 @@ pledge("stdio cpath rpath wpath inet flock fattr") if $openbsd;
 
 my $MAX_SIZE = 1024 * 1024 * 100;
 my @BANNED = qw();			  # Add banned IP addresses here
-my $RANDOMIZE_FILENAME = 0;
+my $RANDOMIZE_FILENAME = 1;   # Enable/Disable filename randomization
 
 my $dirname;
-my $filename = "";
 my $host;
 
 mkdir "f";
@@ -50,8 +50,8 @@ sub handle_file {
 	if ( List::MoreUtils::any { /$c->tx->remote_address/ } uniq @BANNED ) {
 		$c->render(
 				 text =>
-				 "Hi! Seems like the server admin added your IP address to the banned IP array." .
-				 "As the developer of sakisafe, I can't do anything.",
+				 "Error: Your IP is banned." .
+				 "To resolve this issue, contact the server's administrator.",
 				 status => 403
 				);
 		return;
@@ -60,11 +60,16 @@ sub handle_file {
 	# Generate random string for the directory
 	my @chars = ( '0' .. '9', 'a' .. 'Z' );
 	$dirname .= $chars[ rand @chars ] for 1 .. 5;
-	if ( $RANDOMIZE_FILENAME eq 1 ) {
+	my $filename;
+	$filename = $filedata->filename;
+	my $enc = encode( "UTF-8", $filename );
+	$filename = $enc;
+	if ( $RANDOMIZE_FILENAME = 1 ) {
+		my $extension = $filename;
+		$extension =~ s/.*\.//;
+		$filename = "";
 		$filename .= $chars[ rand @chars ] for 1 .. 5;
-		# TODO: add extension at the end of the filename, fix the multiplication of the chars every time the code runs
-	} else {
-		$filename = $filedata->filename;
+		$filename = $filename . "." . $extension;
 	}
 	carp(color("bold yellow"), "sakisafe warning: could not create directory: $ERRNO", color("reset")) unless
 	  mkdir( "f/" . $dirname );
@@ -141,11 +146,10 @@ __DATA__
   <p>Running sakisafe 2.4.0</p>
   <div class="left">
   <h2>Or just upload a file here</h2>
-  <form ENCTYPE='multipart/form-data' method='post' action='/upload'>
+  <form ENCTYPE='multipart/form-data' charset='utf-8' method='post' action='/upload'>
   <input type='file' name='file' size='30'/>
   <input type='submit' value='upload'/>
   </form>
   </div>
   </body>
   </html>
-  
