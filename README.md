@@ -11,7 +11,7 @@
 1. install the dependencies using `cpan`:
 
 ~~~
-cpan -i Mojolicious::Lite Mojolicious::Routes::Pattern Mojoliciuos::Plugin::RenderFile
+cpan -i Mojolicious::Lite Mojolicious::Routes::Pattern Mojolicious::Plugin::RenderFile List::MoreUtils MIME::Types Carp Term::ANSIColor English
 ~~~
 
 2. Clone the repo and start the daemon:
@@ -41,10 +41,10 @@ server {
 	  # ssl configuration here
 
 	  location / {
-			 proxy_set_header    Host            $host;
-			 proxy_set_header    X-Real-IP       $remote_addr;
-    			 proxy_set_header    X-Forwarded-for $remote_addr;
-			 proxy_pass http://127.0.0.1:3000$request_uri;
+	  		   proxy_set_header    Host            $host;
+			   proxy_set_header    X-Real-IP       $remote_addr;
+			   proxy_set_header    X-Forwarded-for $remote_addr;
+			   proxy_pass http://127.0.0.1:3000$request_uri;
 	  }
 }
 ~~~
