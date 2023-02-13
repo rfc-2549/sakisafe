@@ -11,7 +11,7 @@
 1. install the dependencies using `cpan`:
 
 ~~~
-cpan -i Mojolicious::Lite Mojolicious::Routes::Pattern Mojolicious::Plugin::RenderFile List::MoreUtils MIME::Types Carp Term::ANSIColor English
+cpan -i Mojolicious::Lite Mojolicious::Routes::Pattern Mojolicious::Plugin::RenderFile List::MoreUtils MIME::Types
 ~~~
 
 2. Clone the repo and start the daemon:
