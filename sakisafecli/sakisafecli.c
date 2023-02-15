@@ -159,6 +159,7 @@ main(int argc, char **argv)
 	}
 
 	/* curl options */
+	curl_easy_setopt(easy_handle, CURLOPT_USERAGENT, "curl");
 	curl_easy_setopt(easy_handle, CURLOPT_WRITEFUNCTION, write_data);
 	curl_easy_setopt(easy_handle, CURLOPT_WRITEDATA, buffer);
 
