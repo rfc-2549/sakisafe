@@ -69,7 +69,15 @@ other file upload services). It also supports file uploading via scp
 
 ### Compilation
 
-Clone the repo and run `make` (or `bmake` in linux systems)
+Clone the repo and run `make`.
+
+#### Linux-specific
+
+Use `bmake` instead of `make`, and you'll also need these deps:
+
+* `libcurl-devel`
+* `libconfig-dev`
+* `libnghttp2-dev`
 
 ### Repositories
 
@@ -86,3 +94,4 @@ Thanks!
 **Bitcoin**: bc1qghl6f27dpgktynpvkrxte2s3gm9pcv8vlwuzum
 
 **Monero**: 47QTumjtqJabbo1s9pLDdXeJarLVLfs1AaEcbi1xrEiV852mqcbe5AHLNXTk7tH9MscxcxQDfJQnvH5LpxvfgwSJQZ3zbS6
+
