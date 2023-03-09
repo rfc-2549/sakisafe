@@ -194,7 +194,9 @@ main(int argc, char **argv)
 	/* Common options for both HTTP and SCP transfers */
 
 	curl_easy_setopt(easy_handle, CURLOPT_NOPROGRESS, silent_flag);
-	curl_easy_setopt(easy_handle, CURLOPT_PROGRESSFUNCTION, progress);
+	struct progress mem;
+	curl_easy_setopt(easy_handle, CURLOPT_XFERINFODATA, &mem);
+	curl_easy_setopt(easy_handle, CURLOPT_XFERINFOFUNCTION, progress);
 
 	/* File name */
 

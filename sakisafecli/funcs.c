@@ -1,8 +1,10 @@
+#include <curl/system.h>
 #include <stdio.h>
 #include <string.h>
 #include <errno.h>
 #include <libconfig.h>
 #include <curl/curl.h>
+#include <stdbool.h>
 #include "sakisafecli.h"
 
 size_t
@@ -37,16 +39,19 @@ print_help()
 	return;
 }
 
-void
+size_t
 progress(
-	void *clientp, double dltotal, double dlnow, double ultotal, double ulnow)
+	void *clientp, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow)
 {
-	/* So I don't get a warning */
-	dltotal += 1;
-	dlnow += 1;
-	printf("\r%0.f uploaded of %0.f (\033[32;1m%0.f%%\033[30;0m)",
+	/* I don't know why the fuck I have to do this */
+	if(ultotal == 0) {
+		ultotal++;
+	}
+	struct progress *memory = (struct progress *)clientp;
+	printf("\r%li uploaded of %li (\033[32;1m%li%%\033[30;0m)",
 		  ulnow,
 		  ultotal,
 		  ulnow * 100 / ultotal);
 	fflush(stdout);
+	return 0;
 }

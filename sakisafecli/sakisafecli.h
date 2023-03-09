@@ -2,6 +2,13 @@
 #define SAKISAFECLI_H
 #include <stdlib.h>
 #include <stdio.h>
+#include <curl/curl.h>
+
+struct progress
+{
+	char *_private;
+	size_t size;
+};
 
 size_t
 write_data(void *buffer, size_t size, size_t nmemb, void *userp);
@@ -15,9 +22,12 @@ store_link(const char *path, const char *buf);
 void
 print_help();
 
-void
-progress(
-	void *clientp, double dltotal, double dlnow, double ultotal, double ulnow);
+size_t
+progress(void *clientp,
+	    curl_off_t dltotal,
+	    curl_off_t dlnow,
+	    curl_off_t ultotal,
+	    curl_off_t ulnow);
 
 void
 parse_config_file(FILE *config);
