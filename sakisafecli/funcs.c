@@ -29,7 +29,7 @@ print_help()
 		  "server\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s\n%s",
 		  "-t|--token: Authentication token (https://u.kalli.st)",
 		  "-P|--http-proxy: http proxy to use e.g. http://127.0.0.1:4444",
-		  "-p|--socks-proxy: SOCK proxy to use e.g.I 127.0.0.1:9050",
+		  "-p|--socks-proxy: SOCK proxy to use e.g. 127.0.0.1:9050",
 		  "-6|--ipv6: uses IPv6 only",
 		  "-4|--ipv6: uses IPv4 only", 
 		  "-S|--silent: doesn't print progress",
@@ -47,7 +47,6 @@ progress(
 	if(ultotal == 0) {
 		ultotal++;
 	}
-	struct progress *memory = (struct progress *)clientp;
 	printf("\r%li uploaded of %li (\033[32;1m%li%%\033[30;0m)",
 		  ulnow,
 		  ultotal,
