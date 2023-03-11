@@ -22,7 +22,7 @@ pledge("stdio cpath rpath wpath inet flock fattr") if $^O eq "openbsd";
 
 my $MAX_SIZE = 1024 * 1024 * 100;
 
-my @BANNED = path('banned.txt')->slurp_utf8 || qw(); # Add banned IP addresses here
+my @BANNED = eval { path('banned.txt')->slurp_utf8 } or qw(); # Add banned IP addresses here
 my $dirname;
 my $link;
 
@@ -119,8 +119,8 @@ get '/f/:dir/#name' => sub ($c) {
 				 content_disposition => 'inline'
 				);
 
-}
-;
+};
+
 app->max_request_size( 1024 * 1024 * 100 );
 
 post '/upload' => sub ($c) { handle_file($c) };
