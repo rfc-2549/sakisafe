@@ -9,21 +9,20 @@ use Carp;
 use Term::ANSIColor;
 use English;
 use MIME::Types;
+use Path::Tiny;
 use warnings;
 use experimental 'signatures';
 use feature 'say';
 plugin 'RenderFile';
 
 # OpenBSD promises.
-my $openbsd = 0;
-$openbsd = 1 if $^O eq "openbsd";
-pledge("stdio cpath rpath wpath inet flock fattr") if $openbsd;
+pledge("stdio cpath rpath wpath inet flock fattr") if $^O eq "openbsd";
 
 # 100 MBs
 
 my $MAX_SIZE = 1024 * 1024 * 100;
 
-my @BANNED = qw();			  # Add banned IP addresses here
+my @BANNED = eval { path('banned.txt')->slurp_utf8 } or qw(); # Add banned IP addresses here
 my $dirname;
 my $link;
 
@@ -46,6 +45,7 @@ sub handle_file {
 					   status => 400
 					  );
 	}
+    
 	if ( List::MoreUtils::any { /$c->tx->remote_address/ } uniq @BANNED ) {
 		$c->render(
 				 text =>
@@ -119,8 +119,8 @@ get '/f/:dir/#name' => sub ($c) {
 				 content_disposition => 'inline'
 				);
 
-}
-;
+};
+
 app->max_request_size( 1024 * 1024 * 100 );
 
 post '/upload' => sub ($c) { handle_file($c) };
