@@ -129,7 +129,7 @@ app->start;
 
 # Index template
 
-#By default Mojolicious gets the "directory root" from the "public"
+# By default Mojolicious gets the "directory root" from the "public"
 # directory, so the css and the favicon from the "public" directory,
 # in the root of this repo.
 
