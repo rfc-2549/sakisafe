@@ -4,7 +4,7 @@ use ExtUtils::MakeMaker;
 
 WriteMakefile(
     NAME => 'sakisafe',
-    PREREQ_PM => {
+    CONFIGURE_REQUIRES => {
         "Mojolicious" => 0,
         "List::MoreUtils" => 0,
         "Term::ANSIColor" => 0,
