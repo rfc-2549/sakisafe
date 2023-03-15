@@ -118,7 +118,6 @@ get '/f/:dir/#name' => sub ($c) {
 				 format              => $ext,
 				 content_disposition => 'inline'
 				);
-
 };
 
 app->max_request_size( 1024 * 1024 * 100 );
@@ -190,3 +189,28 @@ __DATA__
   </body>
   </html>
 
+
+
+=pod
+
+=head1 sakisafe
+
+sakisafe is a web application using the Mojolicious framework which
+allow users to simply upload and share files.
+
+=head2 synopsis
+
+C<./sakisafe.pl daemon -m production>
+
+This will start sakisafe in port 3000. Which should be proxied with
+nginx or any reverse proxy software.
+
+=head2 license
+
+The Unlicense.
+
+=head2 author
+
+Raoul Vaughn
+
+=cut
