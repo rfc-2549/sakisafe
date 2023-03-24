@@ -4,8 +4,9 @@
 use if $^O eq "openbsd", OpenBSD::Pledge, qw(pledge);
 use Mojolicious::Lite -signatures;
 use Mojolicious::Routes::Pattern;
+use Mojo::Log;
+use Time::HiRes;
 use List::MoreUtils qw(uniq);
-use Carp;
 use Term::ANSIColor;
 use English;
 use MIME::Types;
@@ -19,25 +20,35 @@ plugin 'RenderFile';
 pledge("stdio cpath rpath wpath inet flock fattr") if $^O eq "openbsd";
 
 # 100 MBs
-
 my $MAX_SIZE = 1024 * 1024 * 100;
 
-my @BANNED = eval { path('banned.txt')->slurp_utf8 } or qw(); # Add banned IP addresses here
+my @BANNED = eval { path('banned.txt')->slurp_utf8 } || qw(); # Add banned IP addresses here
 my $dirname;
 my $link;
 
 mkdir "f";
 
+# Mojo logger
+my $log = Mojo::Log->new(path => 'sakisafe.log', level => 'trace');
+$log->color(1);
+
+# Forward logs to STDERR or STDOUT while also writing to the `sakisafe.log` file.
+$log->on(message => sub ($l, $level, @lines) {
+    my $time = time;
+    my ($s, $m, $h, $day, $month, $year) = localtime time;
+    $time = sprintf('%04d-%02d-%02d %02d:%02d:%08.5f', $year + 1900, $month + 1, $day, $h, $m,
+                    "$s." . ((split '.', $time)[1] // 0));
+    my $log_to_print = '[' . $time . '] ' . '[' . $level . '] ' . join(' ', @lines);
+    if ($level eq 'trace' || $level eq 'info') {
+        say $log_to_print;
+    } else {
+        print \*STDERR, $log_to_print . "\n";
+    }
+});
+
 # Function to handle file uploads
-
-sub logger ( $level, $address, $message ) {
-	open( my $fh, ">>", "sakisafe.log" );
-	printf( $fh "[%s]: %s has uploaded file %s\n", $level, $address, $message );
-	close($fh);
-}
-
 sub handle_file {
-	my $c        = shift;
+    my $c        = shift;
 	my $filedata = $c->param("file");
 	if ( $filedata->size > $MAX_SIZE ) {
 		return $c->render(
@@ -46,7 +57,8 @@ sub handle_file {
 					  );
 	}
     
-	if ( List::MoreUtils::any { /$c->tx->remote_address/ } uniq @BANNED ) {
+	if ( List::MoreUtils::any { $c->tx->remote_address } uniq @BANNED ) {
+        $log->info("Attempt to upload by banned IP: " . $c->tx->remote_address);
 		$c->render(
 				 text =>
 				 "Hi! Seems like the server admin added your IP address to the banned IP array."
@@ -60,26 +72,22 @@ sub handle_file {
 	my @chars = ( '0' .. '9', 'a' .. 'Z' );
 	$dirname .= $chars[ rand @chars ] for 1 .. 5;
 	my $filename = $filedata->filename;
-	carp( color("bold yellow"),
-		 "sakisafe warning: could not create directory: $ERRNO",
-		 color("reset") )
+	$log->warn("sakisafe warning: could not create directory: $ERRNO")
 	  unless mkdir( "f/" . $dirname );
 	$filename .= ".txt" if $filename eq "-";
     
 	# TODO: get whether the server is http or https
 	# There's a CGI ENV variable for that.
 	my $host = $c->req->url->to_abs->host;
-     my $ua = $c->req->headers->user_agent;
+    my $ua = $c->req->headers->user_agent;
 	$filedata->move_to( "f/" . $dirname . "/" . $filename );
 	$link = "http://$host/f/$dirname/$filename";
 	$c->stash(link => $link, host => $host, dirname => $dirname);
     
-
 	$c->res->headers->header(
 						'Location' => "$link" . $filename );
 
 	# Only give the link to curl, html template for others.
-	
 	if($ua =~ m/curl/) {
 		$c->render(
 				 text => $link . "\n",
@@ -92,8 +100,9 @@ sub handle_file {
 				 template => 'file',
 				 status => 201,
 				);
-	}
-	logger( "INFO", $c->tx->remote_address, $dirname . "/" . $filename );
+    }
+    
+	$log->info($c->tx->remote_address . " " . $dirname . "/" . $filename );
 	$dirname = "";
 }
 
@@ -120,6 +129,7 @@ get '/f/:dir/#name' => sub ($c) {
 				);
 };
 
+app->log($log);
 app->max_request_size( 1024 * 1024 * 100 );
 
 post '/upload' => sub ($c) { handle_file($c) };
@@ -156,9 +166,6 @@ __DATA__
   </body>
   </html>
 
-  __END__
-
-
 @@ index.html.ep
   <!DOCTYPE html>
   <html lang="en">
@@ -182,14 +189,13 @@ __DATA__
   <div class="left">
   <h2>Or just upload a file here</h2>
   <form ENCTYPE='multipart/form-data' method='post' action='/upload'>
-  <input type='file' name='file' size='30'/>
+  <input type='file' name='file' size='30' required/>
   <input type='submit' value='upload'/>
   </form>
   </div>
   </body>
   </html>
-
-
+__END__
 
 =pod
 
