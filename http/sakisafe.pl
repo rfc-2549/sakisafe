@@ -1,4 +1,5 @@
 #!/usr/bin/perl
+
 # This file is part of sakisafe.
 
 use if $^O eq "openbsd", OpenBSD::Pledge, qw(pledge);
@@ -22,7 +23,7 @@ pledge("stdio cpath rpath wpath inet flock fattr") if $^O eq "openbsd";
 # 100 MBs
 my $MAX_SIZE = 1024 * 1024 * 100;
 
-my @BANNED = eval { path('banned.txt')->slurp_utf8 } || qw(); # Add banned IP addresses here
+my @BANNED = eval { path('banned.txt')->slurp_utf8 } || qw();    # Add banned IP addresses here
 my $dirname;
 my $link;
 
@@ -33,77 +34,72 @@ my $log = Mojo::Log->new(path => 'sakisafe.log', level => 'trace');
 $log->color(1);
 
 # Forward logs to STDERR or STDOUT while also writing to the `sakisafe.log` file.
-$log->on(message => sub ($l, $level, @lines) {
+$log->on(
+  message => sub ($l, $level, @lines) {
     my $time = time;
     my ($s, $m, $h, $day, $month, $year) = localtime time;
-    $time = sprintf('%04d-%02d-%02d %02d:%02d:%08.5f', $year + 1900, $month + 1, $day, $h, $m,
-                    "$s." . ((split '.', $time)[1] // 0));
+    $time = sprintf(
+      '%04d-%02d-%02d %02d:%02d:%08.5f',
+      $year + 1900,
+      $month + 1, $day, $h, $m, "$s." . ((split '.', $time)[1] // 0)
+    );
     my $log_to_print = '[' . $time . '] ' . '[' . $level . '] ' . join(' ', @lines);
     if ($level eq 'trace' || $level eq 'info') {
-        say $log_to_print;
-    } else {
-        print \*STDERR, $log_to_print . "\n";
+      say $log_to_print;
     }
-});
+    else {
+      print \*STDERR, $log_to_print . "\n";
+    }
+  }
+);
 
 # Function to handle file uploads
 sub handle_file {
-    my $c        = shift;
-	my $filedata = $c->param("file");
-	if ( $filedata->size > $MAX_SIZE ) {
-		return $c->render(
-					   text   => "Max upload size: $MAX_SIZE",
-					   status => 400
-					  );
-	}
-    
-	if ( List::MoreUtils::any { $c->tx->remote_address } uniq @BANNED ) {
-        $log->info("Attempt to upload by banned IP: " . $c->tx->remote_address);
-		$c->render(
-				 text =>
-				 "Hi! Seems like the server admin added your IP address to the banned IP array."
-				 . "As the developer of sakisafe, I can't do anything.",
-				 status => 403
-				);
-		return;
-	}
+  my $c        = shift;
+  my $filedata = $c->param("file");
+  if ($filedata->size > $MAX_SIZE) {
+    return $c->render(text => "Max upload size: $MAX_SIZE", status => 400);
+  }
 
-	# Generate random string for the directory
-	my @chars = ( '0' .. '9', 'a' .. 'Z' );
-	$dirname .= $chars[ rand @chars ] for 1 .. 5;
-	my $filename = $filedata->filename;
-	$log->warn("sakisafe warning: could not create directory: $ERRNO")
-	  unless mkdir( "f/" . $dirname );
-	$filename .= ".txt" if $filename eq "-";
-    
-	# TODO: get whether the server is http or https
-	# There's a CGI ENV variable for that.
-	my $host = $c->req->url->to_abs->host;
-    my $ua = $c->req->headers->user_agent;
-	$filedata->move_to( "f/" . $dirname . "/" . $filename );
-	$link = "http://$host/f/$dirname/$filename";
-	$c->stash(link => $link, host => $host, dirname => $dirname);
-    
-	$c->res->headers->header(
-						'Location' => "$link" . $filename );
+  if (List::MoreUtils::any { $c->tx->remote_address } uniq @BANNED) {
+    $log->info("Attempt to upload by banned IP: " . $c->tx->remote_address);
+    $c->render(
+      text => "Hi! Seems like the server admin added your IP address to the banned IP array."
+        . "As the developer of sakisafe, I can't do anything.",
+      status => 403
+    );
+    return;
+  }
 
-	# Only give the link to curl, html template for others.
-	if($ua =~ m/curl/) {
-		$c->render(
-				 text => $link . "\n",
-				 status => 201,
-				);
+  # Generate random string for the directory
+  my @chars = ('0' .. '9', 'a' .. 'Z');
+  $dirname .= $chars[rand @chars] for 1 .. 5;
+  my $filename = $filedata->filename;
+  $log->warn("sakisafe warning: could not create directory: $ERRNO") unless mkdir("f/" . $dirname);
+  $filename .= ".txt" if $filename eq "-";
 
-		$dirname = "";
-	} else {
-		$c->render(
-				 template => 'file',
-				 status => 201,
-				);
-    }
-    
-	$log->info($c->tx->remote_address . " " . $dirname . "/" . $filename );
-	$dirname = "";
+  # TODO: get whether the server is http or https
+  # There's a CGI ENV variable for that.
+  my $host = $c->req->url->to_abs->host;
+  my $ua   = $c->req->headers->user_agent;
+  $filedata->move_to("f/" . $dirname . "/" . $filename);
+  $link = "http://$host/f/$dirname/$filename";
+  $c->stash(link => $link, host => $host, dirname => $dirname);
+
+  $c->res->headers->header('Location' => "$link" . $filename);
+
+  # Only give the link to curl, html template for others.
+  if ($ua =~ m/curl/) {
+    $c->render(text => $link . "\n", status => 201,);
+
+    $dirname = "";
+  }
+  else {
+    $c->render(template => 'file', status => 201,);
+  }
+
+  $log->info($c->tx->remote_address . " " . $dirname . "/" . $filename);
+  $dirname = "";
 }
 
 # Function to log uploaded files
@@ -114,23 +110,19 @@ post '/' => sub ($c) { handle_file($c) };
 # Allow files to be downloaded.
 
 get '/f/:dir/#name' => sub ($c) {
-	my $dir  = $c->param("dir");
-	my $file = $c->param("name");
-	my $ext  = $file;
-	$ext =~ s/.*\.//;
-	my $path = "f/" . $dir . "/" . $file;
+  my $dir  = $c->param("dir");
+  my $file = $c->param("name");
+  my $ext  = $file;
+  $ext =~ s/.*\.//;
+  my $path = "f/" . $dir . "/" . $file;
 
-	#carp "sakisafe warning: could not get file: $ERRNO" unless
-	$c->render( text => "file not found", status => 404 ) unless -e $path;
-	$c->render_file(
-				 filepath            => $path,
-				 format              => $ext,
-				 content_disposition => 'inline'
-				);
+  #carp "sakisafe warning: could not get file: $ERRNO" unless
+  $c->render(text => "file not found", status => 404) unless -e $path;
+  $c->render_file(filepath => $path, format => $ext, content_disposition => 'inline');
 };
 
 app->log($log);
-app->max_request_size( 1024 * 1024 * 100 );
+app->max_request_size(1024 * 1024 * 100);
 
 post '/upload' => sub ($c) { handle_file($c) };
 
