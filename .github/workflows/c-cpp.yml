@@ -13,5 +13,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v3
+    - name: install dependencies
+      run: sudo apt-get update && sudo apt-get install -y bmake libcurl4-openssl-dev libconfig-dev  
     - name: bmake
       run: bmake
