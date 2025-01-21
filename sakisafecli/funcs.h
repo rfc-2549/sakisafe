@@ -22,3 +22,18 @@ progress(
 /* Print config */
 void
 print_config();
+
+int
+init_sakisafe_options();	
+
+int
+get_protocol(char *server);
+
+int
+die(char *msg);
+
+int
+upload_file_http(int argc, char **argv);
+
+int
+upload_file_scp(int argc, char **argv);

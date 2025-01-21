@@ -22,12 +22,6 @@ store_link(const char *path, const char *buf);
 void
 print_help();
 
-size_t
-progress(void *clientp,
-	    curl_off_t dltotal,
-	    curl_off_t dlnow,
-	    curl_off_t ultotal,
-	    curl_off_t ulnow);
 
 void
 parse_config_file(FILE *config);

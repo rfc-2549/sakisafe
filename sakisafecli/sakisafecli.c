@@ -18,16 +18,20 @@
 #include "funcs.h"
 #include "sakisafecli.h"
 
+CURL *easy_handle;
+
+char *buffer;
 /* Config variables */
 
-bool ipv6_flag = false, ipv4_flag = false, http_proxy_flag = false,
-	socks_proxy_flag = false, silent_flag = false, paste_flag = false;
+bool ipv6_flag, ipv4_flag, http_proxy_flag,
+	socks_proxy_flag, silent_flag, paste_flag;
 
 char *http_proxy_url, *socks_proxy_url;
-char *ssh_key_path = NULL;
+char *ssh_key_path;
 
-char *server = "https://lainsafe.delegao.moe";
-const char *path = ".cache/sakisafelinks";
+char *server;
+const char *path;
+
 
 int
 main(int argc, char **argv)
@@ -39,12 +43,10 @@ main(int argc, char **argv)
 	}
 #endif
 
-	char *form_key = "file";
-
-	char *buffer = (char *)calloc(1024, sizeof(char));
+	buffer = (char *)calloc(1024, sizeof(char));
 
 	if(buffer == NULL) {
-		fprintf(stderr, "Error allocating memory!\n");
+		fprintf(stderr, "Error allocating memory for buffer!\n");
 		return -1;
 	}
 	char config_location[512];
@@ -71,7 +73,7 @@ main(int argc, char **argv)
 	}
 	/* libcurl initialization */
 
-	CURL *easy_handle = curl_easy_init();
+	easy_handle = curl_easy_init();
 
 	if(!easy_handle) {
 		fprintf(stderr, "Error initializing libcurl\n");
@@ -84,7 +86,7 @@ main(int argc, char **argv)
 		curl_easy_cleanup(easy_handle);
 		return -1;
 	}
-
+	init_sakisafe_options();
 	int option_index = 0;
 	static struct option long_options[] = {
 		{ "server", required_argument, 0, 's' },
@@ -159,12 +161,16 @@ main(int argc, char **argv)
 	}
 
 	/* curl options */
-	curl_easy_setopt(easy_handle, CURLOPT_USERAGENT, "curl");
-	curl_easy_setopt(easy_handle, CURLOPT_WRITEFUNCTION, write_data);
-	curl_easy_setopt(easy_handle, CURLOPT_WRITEDATA, buffer);
+	if(curl_easy_setopt(easy_handle, CURLOPT_USERAGENT, "curl") != 0)
+		die("Error setting CURLOPT_USERAGENT");
+	if(curl_easy_setopt(easy_handle, CURLOPT_WRITEFUNCTION, write_data) != 0)
+		die("Error setting CURLOPT_WRITEFUNCTION");
+	if(curl_easy_setopt(easy_handle, CURLOPT_WRITEDATA, buffer) != 0)
+		die("error setting CURLOPT_WRITEDATA");
 
-	curl_easy_setopt(easy_handle, CURLOPT_URL, server);
-
+	if(curl_easy_setopt(easy_handle, CURLOPT_URL, server) != 0)
+		die("error setting CURLOPT_URL");
+	
 	int protocol = get_protocol(server);
 
 	/* Proxy options */
@@ -207,61 +213,11 @@ main(int argc, char **argv)
 	/* Process HTTP uploads */
 
 	if(protocol == CURLPROTO_HTTP) {
-		curl_mime *mime;
-		mime = curl_mime_init(easy_handle);
-
-		curl_easy_setopt(easy_handle, CURLOPT_MIMEPOST, mime);
-		if(!mime) {
-			fprintf(stderr, "Error initializing curl_mime\n");
-		}
-
-		curl_mimepart *file_data;
-		file_data = curl_mime_addpart(mime);
-		char *filename = argv[optind];
-
-		if(paste_flag)
-			filename = "/dev/stdin";
-
-		curl_mime_filedata(file_data, filename);
-		curl_mime_name(file_data, form_key);
-		if(paste_flag)
-			curl_mime_filename(file_data, "-");
-
-		curl_easy_perform(easy_handle);
-		if(!silent_flag)
-			putchar('\n');
-		puts(buffer);
-		curl_mime_free(mime);
-
+		upload_file_http(argc, argv);
 	}
 	/* Process SCP uploads */
 	else if(protocol == CURLPROTO_SCP) {
-		curl_easy_setopt(
-			easy_handle, CURLOPT_SSH_PRIVATE_KEYFILE, ssh_key_path);
-
-		char path[256];
-		char *filename = argv[optind];
-
-		curl_easy_setopt(easy_handle, CURLOPT_UPLOAD, true);
-		FILE *fp = fopen(filename, "r");
-		if(fp == NULL) {
-			fprintf(stderr, "%s", strerror(errno));
-			exit(-1);
-		}
-
-		struct stat st;
-		stat(argv[optind], &st);
-		snprintf(path, 256, "%s/%s", server, filename);
-		curl_easy_setopt(easy_handle, CURLOPT_READDATA, fp);
-		curl_easy_setopt(
-			easy_handle, CURLOPT_INFILESIZE_LARGE, (curl_off_t)st.st_size);
-
-		int ret = curl_easy_perform(easy_handle);
-		putchar('\n');
-		if(ret != 0) {
-			fprintf(stderr, "%i: %s\n", ret, curl_easy_strerror(ret));
-		}
-
+		upload_file_scp(argc, argv);
 	} else {
 		puts("Unsupported protocol");
 		return -1;
@@ -273,13 +229,3 @@ main(int argc, char **argv)
 	return 0;
 }
 
-int
-get_protocol(char *server)
-{
-	if(strstr(server, "http://") != NULL || strstr(server, "https://"))
-		return CURLPROTO_HTTP;
-	else if(strstr(server, "scp://") != NULL)
-		return CURLPROTO_SCP;
-	else
-		return -1;
-}
