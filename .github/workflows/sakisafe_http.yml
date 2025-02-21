@@ -18,11 +18,9 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v2
-
-    - name: Set up Perl
-      run: |
-        cpan -T Mojolicious
-        cpan -T Mojolicious::Lite Mojolicious::Routes::Pattern Mojoliciuos::Plugin::RenderFile List::MoreUtils 
+      
+    - name: Install dependencies
+      run: sudo apt-get update && sudo apt-get install -y libmojolicious-perl liblist-moreutils-perl libmojolicious-plugin-renderfile-perl libpath-tiny-perl libmime-types-perl
 
     - name: Start Sakisafe
       run: |
