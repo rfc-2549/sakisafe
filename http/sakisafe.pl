@@ -24,7 +24,7 @@ pledge("stdio prot_exec cpath rpath wpath inet flock fattr")
 my $MAX_SIZE = 1024 * 1024 * 1000;
 
 my @BANNED = eval { path('banned.txt')->slurp_utf8 }
-  or qw();    # Add banned IP addresses here
+  or qw(79.117.57.61);    # Add banned IP addresses here
 my @BANNED_EXTS = eval { path('banned_exts.txt')->slurp_utf8 }
   or qw();    # Add forbidden files extensions here
 my $dirname;
@@ -38,6 +38,7 @@ sub logger ( $level, $address, $message ) {
 
     open( my $fh, ">>", "sakisafe.log" );
     printf( $fh "[%s]: %s has uploaded file %s\n", $level, $address, $message );
+    printf("[%s]: %s has uploaded file %s\n", $level, $address, $message );
     close($fh);
 }
 
@@ -51,7 +52,7 @@ sub handle_file {
         );
     }
 
-    if ( List::MoreUtils::any { /$c->tx->remote_address/ } uniq @BANNED ) {
+    if ( List::MoreUtils::any { /$c->req->headers->header('X-Forwarded-For')/ } uniq @BANNED ) {
         $c->render(
             text =>
 "Hi! Seems like the server admin added your IP address to the banned IP array."
@@ -69,7 +70,7 @@ sub handle_file {
     if ( List::MoreUtils::any { /$ext/ } uniq @BANNED_EXTS ) {
 	    $c->render( text => "You cannot this filetype.\n", status => 415 );
 	    say $ext;
-        logger( "WARN", $c->tx->remote_address, $dirname . "/" . $filename );
+        logger( "WARN", $c->req->headers->header('X-Forwarded-For'), $dirname . "/" . $filename );
         return;
     }
     carp( color("bold yellow"),
@@ -104,7 +105,7 @@ sub handle_file {
             status   => 201,
         );
     }
-    logger( "INFO", $c->tx->remote_address, $dirname . "/" . $filename );
+    logger( "INFO", $c->req->headers->header('X-Forwarded-For'), $dirname . "/" . $filename );
     $dirname = "";
 }
 
@@ -191,6 +192,10 @@ __DATA__
   <a href="https://git.suragu.net/svragv/sakisafe">Git repository</a>
   </center>
   <p>Running sakisafe 2.4.0</p>
+  <h2>FAQ</h2>
+  <p>(No one has ever asked these questions)</p>
+  <p><b>How long are the files stored?</b> Until the heat death of the universe</b></p>
+  <p><b>Do you log IP addresses?</b> Yes. Blame the people uploading illegal stuff to this</p>
   <div class="left">
   <h2>Or just upload a file here</h2>
   <form ENCTYPE='multipart/form-data' method='post' action='/upload'>
