@@ -1,0 +1,36 @@
+# This was written by an AI. HA!
+# I hate writing yaml. I'm glad a computer can do it for me.
+
+name: Test Mojolicious Application
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      web:
+        image: perl:latest
+        ports:
+          - 3000:3000
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Set up Perl
+      run: |
+        cpanm Mojolicious
+        cpanm Mojolicious::Lite Mojolicious::Routes::Pattern Mojoliciuos::Plugin::RenderFile List::MoreUtils 
+
+    - name: Start Sakisafe
+      run: |
+        morbo -l http://*:3000 http/sakisafe.pl
+
+    - name: Test Sakisafe
+      run: |
+        curl --retry 10 --retry-delay 5 --retry-connrefused http://localhost:3000
+
+        # LOLOLOLOLOLOLOLO
+        curl -X POST -F "file=@/etc/passwd" http://localhost:3000
