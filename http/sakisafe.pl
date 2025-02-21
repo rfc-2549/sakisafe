@@ -24,7 +24,7 @@ pledge("stdio prot_exec cpath rpath wpath inet flock fattr")
 my $MAX_SIZE = 1024 * 1024 * 1000;
 
 my @BANNED = eval { path('banned.txt')->slurp_utf8 }
-  or qw(79.117.57.61);    # Add banned IP addresses here
+  or qw();    # Add banned IP addresses here
 my @BANNED_EXTS = eval { path('banned_exts.txt')->slurp_utf8 }
   or qw();    # Add forbidden files extensions here
 my $dirname;
