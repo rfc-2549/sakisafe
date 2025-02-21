@@ -21,8 +21,8 @@ jobs:
 
     - name: Set up Perl
       run: |
-        cpanm Mojolicious
-        cpanm Mojolicious::Lite Mojolicious::Routes::Pattern Mojoliciuos::Plugin::RenderFile List::MoreUtils 
+        cpan -T Mojolicious
+        cpan -T Mojolicious::Lite Mojolicious::Routes::Pattern Mojoliciuos::Plugin::RenderFile List::MoreUtils 
 
     - name: Start Sakisafe
       run: |
