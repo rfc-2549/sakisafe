@@ -1,0 +1,24 @@
+#
+# Add the following lines to /etc/rc.conf to enable sakisafe:
+#
+#sakisafe_enable="YES"
+
+. /etc/rc.subr
+
+name="sakisafe"
+rcvar="sakisafe_enable"
+
+load_rc_config $name
+
+: ${sakisafe_user:=saki}
+: ${sakisafe_group:=saki}
+: ${sakisafe_enable:=NO}
+: ${sakisafe_flags:= -P /var/run/sakisafe.pid -f /usr/local/bin/morbo -l http://*:3000 /usr/local/share/sakisafe/sakisafe.pl }
+: ${sakisafe_chdir:= /usr/local/share/sakisafe }
+command="/usr/sbin/daemon"
+command_args="${sakisafe_flags}"
+pidfile="/var/run/${name}.pid"
+
+PATH="${PATH}"
+
+run_rc_command "$1"

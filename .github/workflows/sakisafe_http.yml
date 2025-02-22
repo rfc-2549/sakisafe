@@ -32,3 +32,6 @@ jobs:
 
         # LOLOLOLOLOLOLOLO
         curl -X POST -F "file=@/etc/passwd" http://localhost:8080
+    - name: Read log entry
+      run: |
+        cat http/sakisafe.log
