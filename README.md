@@ -9,10 +9,26 @@
 * Easy installation (just a simple daemon and use a reverse proxy)
 * Does not bully Tor users ;)
 
+
+# Installation
+
+sakisafe is written in Perl, so it is its first dependency. But if you're
+using a real operating system you should have it by default.
+
 1. install the dependencies using `cpan`:
 
 ~~~
 cpan -i Mojolicious::Lite Mojolicious::Routes::Pattern Mojoliciuos::Plugin::RenderFile
+~~~
+
+If you're running Debian or FreeBSD you can install the dependencies with
+your package manager:
+
+~~~bash
+apt install libmojolicious-perl libmojolicious-plugin-renderfile-perl liblist-moreutils-perl # Debian, Ubuntu...
+pkg install p5-Mojolicious p5-List-MoreUtils p5-Path-Tiny # FreeBSD
+# You'll have to run cpan to install the RenderFile plugin in FreeBSD
+cpan -Ti Mojolicious::Plugin::Renderfile
 ~~~
 
 2. Clone the repo and start the daemon:
