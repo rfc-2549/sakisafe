@@ -1,4 +1,4 @@
-#!/usr/bin/perl
+#!/usr/bin/env perl
 # This file is part of sakisafe.
 
 use if $^O eq "openbsd", OpenBSD::Pledge, qw(pledge);
