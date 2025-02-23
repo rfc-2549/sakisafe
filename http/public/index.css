@@ -1,4 +1,4 @@
-p {
+p, ul, li {
     color: white;
     display: block;
 }
@@ -24,7 +24,8 @@ body {
 }
 
 h1, h2 {
-    color: #e3e3e3;
+	color: #e3e3e3;
+	font-family: monospace;
 }
 .left {
     position: absolute;

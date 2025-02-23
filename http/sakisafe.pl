@@ -21,7 +21,17 @@ plugin 'RenderFile';
 pledge("stdio prot_exec cpath rpath wpath inet flock fattr")
   if $^O eq "openbsd";
 
-# 500 MBs
+# INSTANCE CONFIGURATION
+our $name = "sakisafe";
+our $version = "2.6.0";
+# Domain and port, for output link
+our $domain = "XXXXXXXXXXX";
+our $port   = 443;
+# Contact info
+# Change this with whatever you want
+our $contact_info = 'email: saki@sakisafe.lol';
+
+# 1 GiBs
 
 my $MAX_SIZE = 1024 * 1024 * 1000;
 
@@ -124,7 +134,10 @@ sub handle_file {
 
 # Function to log uploaded files
 
-get '/' => 'index';
+get '/' => sub ($c) {
+  $c->stash(name => $name, contact_info => $contact_info, version => $version);
+  $c->render(template => 'index');
+};
 post '/' => sub ($c) { handle_file($c) };
 
 # Allow files to be downloaded.
@@ -162,6 +175,7 @@ app->start;
 # to get the template here. So a TODO is to fix this.
 
 __DATA__
+
 @@ file.html.ep
   <!DOCTYPE html>
   <html lang="en">
@@ -183,7 +197,9 @@ __DATA__
   </html>
 
 @@ index.html.ep
-  <!DOCTYPE html>
+  % layout 'index', name => $name, contact_info => $contact_info, version => $version;
+
+<!DOCTYPE html>
   <html lang="en">
   <head>
   <title>sakisafe</title>
@@ -202,11 +218,19 @@ __DATA__
   <code>curl -F 'file=@-' https://<%= $c->req->url->to_abs->host; %></code><br/>
   <a href="https://git.suragu.net/svragv/sakisafe">Git repository</a>
   </center>
-  <p>Running sakisafe 2.6.0</p>
+
   <h2>FAQ</h2>
   <p>(No one has ever asked these questions)</p>
   <p><b>How long are the files stored?</b> Until the heat death of the universe</b></p>
   <p><b>Do you log IP addresses?</b> Yes. Blame the people uploading illegal stuff to this</p>
+  <p><b>Do you log all the requests?</b> Nah. Only file uploads are logged.</p>
+  <p><b>Can you delete a file I uploaded?</b><p>That depends on the instance administrator</b></p>
+  <h2>Instance info</h2>
+  <ul>
+  <li>Name: <%= $name %></li>
+  <li>Contact info: <%= $contact_info%>
+  </ul>
+  <p>Running sakisafe <%=$version%></p>
   <div class="left">
   <h2>Or just upload a file here</h2>
   <form ENCTYPE='multipart/form-data' method='post' action='/upload'>
