@@ -4,6 +4,8 @@
 use if $^O eq "openbsd", OpenBSD::Pledge, qw(pledge);
 use Mojolicious::Lite -signatures;
 use Mojolicious::Routes::Pattern;
+use Mojo::Log;
+use Time::HiRes;
 use List::MoreUtils qw(uniq);
 use Carp;
 use Term::ANSIColor;
@@ -24,89 +26,100 @@ pledge("stdio prot_exec cpath rpath wpath inet flock fattr")
 my $MAX_SIZE = 1024 * 1024 * 1000;
 
 my @BANNED = eval { path('banned.txt')->slurp_utf8 }
-  or qw();    # Add banned IP addresses here
+  or qw();				  # Add banned IP addresses here
 my @BANNED_EXTS = eval { path('banned_exts.txt')->slurp_utf8 }
-  or qw();    # Add forbidden files extensions here
+  or qw();				  # Add forbidden files extensions here
 my $dirname;
 my $link;
 
 mkdir "f";
 
+
+
+# Mojo logger
+my $log = Mojo::Log->new(path => 'sakisafe.log', level => 'trace');
+$log->color(1);
+
+# Forward logs to STDERR or STDOUT while also writing to the `sakisafe.log` file.
+$log->on(message => sub ($l, $level, @lines) {
+		 my $time = time;
+		 my ($s, $m, $h, $day, $month, $year) = localtime time;
+		 $time = sprintf('%04d-%02d-%02d %02d:%02d:%08.5f', $year + 1900, $month + 1, $day, $h, $m,
+					  "$s." . ((split '.', $time)[1] // 0));
+		 my $log_to_print = '[' . $time . '] ' . '[' . $level . '] ' . join(' ', @lines);
+		 if ($level eq 'trace' || $level eq 'info') {
+		   say $log_to_print;
+		 } else {
+		   print \*STDERR, $log_to_print . "\n";
+		 }
+	    }
+	   );
+
 # Function to handle file uploads
 
-sub logger ( $level, $address, $message ) {
-
-    open( my $fh, ">>", "sakisafe.log" );
-    printf( $fh "[%s]: %s has uploaded file %s\n", $level, $address, $message );
-    printf("[%s]: %s has uploaded file %s\n", $level, $address, $message );
-    close($fh);
-}
-
 sub handle_file {
-    my $c        = shift;
-    my $filedata = $c->param("file");
-    if ( $filedata->size > $MAX_SIZE ) {
-        return $c->render(
-            text   => "Max upload size: $MAX_SIZE",
-            status => 400
-        );
-    }
+  my $c        = shift;
+  my $filedata = $c->param("file");
+  if ( $filedata->size > $MAX_SIZE ) {
+    return $c->render(
+				  text   => "Max upload size: $MAX_SIZE",
+				  status => 400
+				 );
+  }
 
-    if ( List::MoreUtils::any { /$c->req->headers->header('X-Forwarded-For')/ } uniq @BANNED ) {
-        $c->render(
-            text =>
-"Hi! Seems like the server admin added your IP address to the banned IP array."
-              . "As the developer of sakisafe, I can't do anything.",
-            status => 403
-        );
-        return;
-    }
+  if ( List::MoreUtils::any { /$c->req->headers->header('X-Forwarded-For')/ } uniq @BANNED ) {
+    $c->render(
+			text =>
+			"Hi! Seems like the server admin added your IP address to the banned IP array."
+			. "As the developer of sakisafe, I can't do anything.",
+			status => 403
+		    );
+    return;
+  }
 
-    # Generate random string for the directory
-    my @chars = ( '0' .. '9', 'a' .. 'Z' );
-    $dirname .= $chars[ rand @chars ] for 1 .. 5;
-    my $filename = $filedata->filename;
-    my ($ext) = $filename =~ /(\.[^.]+)$/;
-    if ( List::MoreUtils::any { /$ext/ } uniq @BANNED_EXTS ) {
-	    $c->render( text => "You cannot this filetype.\n", status => 415 );
-	    say $ext;
-        logger( "WARN", $c->req->headers->header('X-Forwarded-For'), $dirname . "/" . $filename );
-        return;
-    }
-    carp( color("bold yellow"),
-        "sakisafe warning: could not create directory: $ERRNO",
-        color("reset") )
-      unless mkdir( "f/" . $dirname );
-    $filename .= ".txt" if $filename eq "-";
+  # Generate random string for the directory
+  my @chars = ( '0' .. '9', 'a' .. 'Z' );
+  $dirname .= $chars[ rand @chars ] for 1 .. 5;
+  my $filename = $filedata->filename;
+  my ($ext) = $filename =~ /(\.[^.]+)$/;
+  if ( List::MoreUtils::any { /$ext/ } uniq @BANNED_EXTS ) {
+    $c->render( text => "You cannot this filetype.\n", status => 415 );
+    $log->info("Attempt to upload by banned extension: " . $c->req->headers->header('X-Forwarded-For'));
+    say $ext;
+    return;
+  }
+  
+  $c->req->headers->header('X-Forwarded-For')
+    unless mkdir( "f/" . $dirname );
 
-    # TODO: get whether the server is http or https
-    # There's a CGI ENV variable for that.
-    my $host = $c->req->url->to_abs->host;
-    my $ua   = $c->req->headers->user_agent;
-    $filedata->move_to( "f/" . $dirname . "/" . $filename );
-    $link = "http://$host/f/$dirname/$filename";
-    $c->stash( link => $link, host => $host, dirname => $dirname );
+  $filename .= ".txt" if $filename eq "-";
 
-    $c->res->headers->header( 'Location' => "$link" . $filename );
+  # TODO: get whether the server is http or https
+  # There's a CGI ENV variable for that.
+  my $host = $c->req->url->to_abs->host;
+  my $ua   = $c->req->headers->user_agent;
+  $filedata->move_to( "f/" . $dirname . "/" . $filename );
+  $link = "http://$host/f/$dirname/$filename";
+  $c->stash( link => $link, host => $host, dirname => $dirname );
 
-    # Only give the link to curl, html template for others.
+  $c->res->headers->header( 'Location' => "$link" . $filename );
 
-    if ( $ua =~ m/curl/ || $ua eq "" ) {
-        $c->render(
-            text   => $link . "\n",
-            status => 201,
-        );
+  # Only give the link to curl, html template for others.
 
-        $dirname = "";
-    }
-    else {
-        $c->render(
-            template => 'file',
-            status   => 201,
-        );
-    }
-    logger( "INFO", $c->req->headers->header('X-Forwarded-For'), $dirname . "/" . $filename );
+  if ( $ua =~ m/curl/ || $ua eq "" ) {
+    $c->render(
+			text   => $link . "\n",
+			status => 201,
+		    );
     $dirname = "";
+  } else {
+    $c->render(
+			template => 'file',
+			status   => 201,
+		    );
+  }
+  $log->info($c->req->headers->header('X-Forwarded-For') . " " . $dirname . "/" . $filename );
+  $dirname = "";
 }
 
 # Function to log uploaded files
@@ -117,21 +130,22 @@ post '/' => sub ($c) { handle_file($c) };
 # Allow files to be downloaded.
 
 get '/f/:dir/#name' => sub ($c) {
-    my $dir  = $c->param("dir");
-    my $file = $c->param("name");
-    my $ext  = $file;
-    $ext =~ s/.*\.//;
-    my $path = "f/" . $dir . "/" . $file;
+  my $dir  = $c->param("dir");
+  my $file = $c->param("name");
+  my $ext  = $file;
+  $ext =~ s/.*\.//;
+  my $path = "f/" . $dir . "/" . $file;
 
-    #carp "sakisafe warning: could not get file: $ERRNO" unless
-    $c->render( text => "file not found", status => 404 ) unless -e $path;
-    $c->render_file(
-        filepath            => $path,
-        format              => $ext,
-        content_disposition => 'inline'
-    );
-};
-
+  #carp "sakisafe warning: could not get file: $ERRNO" unless
+  $c->render( text => "file not found", status => 404 ) unless -e $path;
+  $c->render_file(
+			   filepath            => $path,
+			   format              => $ext,
+			   content_disposition => 'inline'
+			  );
+}
+;
+app->log($log);
 app->max_request_size( 1024 * 1024 * 100 );
 
 post '/upload' => sub ($c) { handle_file($c) };
@@ -164,12 +178,9 @@ __DATA__
   <h2>LINK</h2>
   <code><%= $link %></code>
   </center>
-  <p>Running sakisafe 2.4.0</p>
+  <p>Running sakisafe 2.6.0</p>
   </body>
   </html>
-
-  __END__
-
 
 @@ index.html.ep
   <!DOCTYPE html>
@@ -191,7 +202,7 @@ __DATA__
   <code>curl -F 'file=@-' https://<%= $c->req->url->to_abs->host; %></code><br/>
   <a href="https://git.suragu.net/svragv/sakisafe">Git repository</a>
   </center>
-  <p>Running sakisafe 2.4.0</p>
+  <p>Running sakisafe 2.6.0</p>
   <h2>FAQ</h2>
   <p>(No one has ever asked these questions)</p>
   <p><b>How long are the files stored?</b> Until the heat death of the universe</b></p>
