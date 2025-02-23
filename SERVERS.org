@@ -1,10 +1,9 @@
-* Known lainsafe instances
+* Known sakisafe instances
   
-  In this document i'll add all the lainsafe instance i know :)
+  In this document i'll add all the sakisafe instance i know :)
 
-  - https://lainsafe.delegao.moe
-  - https://lainsafe.duckdns.org (don't use it, old lainsafe version
-    and a bit incompatible with lainsafecli)
-  - https://lainsafe.kalli.st
-    - http://lainsafe.kallist4mcluuxbjnr5p2asdlmdhaos3pcrvhk3fbzmiiiftwg6zncid.onion/ (onion mirror)
-  - http://gnaumuq27fagoo24pb2mmf25rdic7lrthq2fsfolgrpzycc2hwga.b32.i2p/ 
+  Feel free to add more. I do not know about many others.
+
+  - https://ss.suragu.net
+  - https://files.getimiskon.xyuz
+  -     
