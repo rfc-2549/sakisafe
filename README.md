@@ -38,22 +38,27 @@ git clone https://git.suragu.net/sosa/sakisafe
 cd sakisafe/http
 ./sakisafe.pl daemon -m production
 ~~~
-You can also use `hypnotoad` or `morbo` to run the thing:
+You can also use `hypnotoad` to run the thing:
 ~~~
-morbo -l http://*:3000 sakisafe.pl.
 hypnotoad sakisafe.pl # This will daemonize the thing in port 8080.
 ~~~
 
-2.2. In FreeBSD, you can use the rc script located in
-http/scripts/sakisafe_bsd to create a sakisafe service. The service is
-loaded by the user "saki", whose home is `/usr/local/share/sakisafe`:
+2.2. Installing on BSD:
+
+In *FreeBSD*, you can install using the `install_freebsd.sh` script. Run
+the following:
 
 ~~~bash
-mkdir -p /usr/local/share/sakisafe
-cp -r http/* /usr/local/share/sakisafe
-cp http/init/sakisafe_bsd /usr/local/etc/rc.d
-touch /var/run/sakisafe.pid
-chmod 777 /var/run/sakisafe.pid # How to fix this? Please tell me
+su root - -c 'curl -L https://raw.githubusercontent.com/rfc-2549/sakisafe/refs/heads/master/install_freebsd.sh | sh'
+service sakisafe enable
+service sakisafe start
+~~~
+
+In *NetBSD*, you can install using the `netbsd_install.sh` script.
+Run the following:
+
+~~~bash
+su root - -c 'curl -L https://raw.githubusercontent.com/rfc-2549/sakisafe/refs/heads/master/install_netbsd.sh | sh'
 service sakisafe enable
 service sakisafe start
 ~~~
@@ -62,7 +67,7 @@ Please contribute more init scripts for sakisafe!!! (for systemd,
 openbsd...)
 
 2.3. You can also use Docker. I am not a Docker advocate. But apparently
-running "docker build-x" or something like that just works.
+running `docker build -t sakisafe . && docker run -it sakisafe` or something like that just works.
 
 3. Create a 'f' directory in the directory sakisafe will run with
 `mkdir f`. Make sure that the user which will run sakisafe.pl can
