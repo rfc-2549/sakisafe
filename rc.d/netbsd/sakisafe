@@ -1,0 +1,38 @@
+#!/bin/sh
+#
+# $NetBSD: sakisafe
+#
+#
+# PROVIDE: sakisafe
+# REQUIRE: daemon
+# KEYWORD: shutdown
+
+. /etc/rc.subr
+
+name="sakisafe"
+rcvar="${name}"
+stop_cmd="${name}_stop"
+
+pidfile="/usr/pkg/etc/${name}/http/sakisafe.pid"
+script="/usr/pkg/etc/${name}/http/${name}.pl"
+
+load_rc_config "${name}"
+: ${sakisafe:=no}
+: ${sakisafe_port="3000"}
+
+command="perl"
+command_args="${script} daemon -l http://0.0.0.0:${sakisafe_port}"
+
+sakisafe_stop ()
+{
+    echo "Stopping ${name}..."
+    pid=$(cat "${pidfile}")
+    if ps -p $pid > /dev/null; then
+        kill -9 $pid
+        echo "Killed ${name}..."
+    else
+        echo "${name} is not running..."
+    fi
+}
+
+run_rc_command "$1"
