@@ -13,8 +13,8 @@ load_rc_config $name
 : ${sakisafe_user:=saki}
 : ${sakisafe_group:=saki}
 : ${sakisafe_enable:=NO}
-: ${sakisafe_flags:= -P /var/run/sakisafe.pid -f /usr/local/bin/morbo -l http://*:3000 /usr/local/share/sakisafe/sakisafe.pl }
-: ${sakisafe_chdir:= /usr/local/share/sakisafe }
+: ${sakisafe_flags:= -P /var/run/sakisafe.pid -f /usr/local/bin/morbo -l http://*:3000 /usr/local/share/sakisafe/http/sakisafe.pl }
+: ${sakisafe_chdir:= /usr/local/share/sakisafe/http }
 command="/usr/sbin/daemon"
 command_args="${sakisafe_flags}"
 pidfile="/var/run/${name}.pid"
